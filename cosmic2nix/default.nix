@@ -17,7 +17,7 @@ rustPlatform.buildRustPackage {
   meta = {
     description = "Convert any COSMIC desktop configurations to cosmic-manager";
     homepage = "https://github.com/HeitorAugustoLN/cosmic-manager";
-    license = lib.licenses.gpl3Only;
+    license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ HeitorAugustoLN ];
     mainProgram = "cosmic2nix";
     inherit (cosmic-comp.meta) platforms;
