@@ -2,32 +2,31 @@
   description = "Manage COSMIC Desktop using home-manager";
 
   inputs = {
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
     inputs:
-    let
-      supportedSystems = [
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [
         "aarch64-linux"
         "x86_64-linux"
       ];
 
-      forAllSystems =
-        function:
-        inputs.nixpkgs.lib.genAttrs supportedSystems (
-          system: function inputs.nixpkgs.legacyPackages.${system}
-        );
-    in
-    {
-      devShells = forAllSystems (pkgs: {
-        default = import ./shell.nix { inherit pkgs; };
-      });
+      perSystem =
+        { pkgs, ... }:
+        {
+          devShells.default = import ./shell.nix { inherit pkgs; };
 
-      formatter = forAllSystems (pkgs: pkgs.treefmt);
-
-      packages = forAllSystems (pkgs: {
-        default = pkgs.callPackage ./cosmic2nix { };
-      });
+          formatter = pkgs.treefmt;
+        };
     };
 }
