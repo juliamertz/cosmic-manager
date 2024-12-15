@@ -1,4 +1,3 @@
-inputs:
 {
   config,
   lib,
@@ -9,7 +8,6 @@ inputs:
   imports = import ../lib/import-modules.nix {
     inherit
       config
-      inputs
       lib
       pkgs
       ;

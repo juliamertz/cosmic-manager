@@ -1,7 +1,6 @@
 {
   modules,
   config,
-  inputs,
   lib,
   pkgs,
   ...
@@ -11,7 +10,7 @@ let
     _file = file;
     imports = [
       (import file {
-        inherit config inputs pkgs;
+        inherit config pkgs;
         lib = import ./extend-lib.nix { inherit config lib pkgs; };
       })
     ];

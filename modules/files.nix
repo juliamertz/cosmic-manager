@@ -1,6 +1,5 @@
 {
   config,
-  inputs,
   lib,
   pkgs,
   ...
@@ -143,7 +142,28 @@
   config =
     let
       cfg = config.wayland.desktopManager.cosmic;
-      cosmic-ctl = inputs.cosmic-ctl.packages.${pkgs.stdenv.hostPlatform.system}.default;
+
+      cosmic-ctl = pkgs.rustPlatform.buildRustPackage {
+        pname = "cosmic-ctl";
+        version = "unstable-2024-12-15";
+
+        src = pkgs.fetchFromGitHub {
+          owner = "cosmic-utils";
+          repo = "cosmic-ctl";
+          rev = "9dcb348bb80ae688b7a9af24f246a1b3986d5d11";
+          hash = "sha256-lT+Pihx7//LNDOa7GNiwMIBdSju/RRhRT5PqKQWqHio=";
+        };
+
+        cargoHash = "sha256-ymHFo7RGeG1LBhOUZrnPynQmOySRYC0eythFml5VgPc=";
+
+        meta = {
+          description = "CLI for COSMIC Desktop configuration management";
+          homepage = "https://github.com/cosmic-utils/cosmic-ctl";
+          license = lib.licenses.gpl3Only;
+          maintainers = [ lib.maintainers.HeitorAugustoLN ];
+          mainProgram = "cosmic-ctl";
+        };
+      };
 
       makeOperations =
         xdgDirectory: components:
@@ -153,7 +173,9 @@
             inherit (details) version;
             operation = "write";
             xdg_directory = xdgDirectory;
-            entries = builtins.mapAttrs (_key: value: lib.cosmic.generators.toRON 0 value.value) details.entries;
+            entries = builtins.mapAttrs (
+              _key: value: lib.cosmic.generators.toRON 0 value.value
+            ) details.entries;
           }) components
         );
 

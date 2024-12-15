@@ -11,10 +11,6 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    cosmic-ctl = {
-      url = "github:cosmic-utils/cosmic-ctl";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
@@ -28,7 +24,7 @@
       flake = {
         homeManagerModules = {
           default = inputs.self.homeManagerModules.cosmic-manager;
-          cosmic-manager = import ./modules inputs;
+          cosmic-manager = import ./modules;
         };
       };
 
