@@ -44,13 +44,26 @@
         };
       };
       description = ''
-        Defines configuration entries for COSMIC components (e.g., `com.system76.CosmicComp`) in $XDG_CONFIG_HOME.
-        Each configuration includes:
-          - `version`: The version of the component's configuration schema.
-          - `entries`: A map of key-value pairs that define the component's settings. Entries may include:
-            - Primitive values such as booleans, integers, floating point numbers, strings, lists and attribute sets (RON structs).
-            - Advanced structured values like raw RON, optionals, characters, maps, tuples, and named structs,
-              which follows the rules defined by `lib.cosmic.generators.toRON`.
+        Configuration files for COSMIC components stored in `$XDG_CONFIG_HOME`.
+
+        Each component is identified by its unique identifier (e.g., `com.system76.CosmicComp`).
+
+        Structure for each component:
+        - `version`: Schema version number for the component configuration.
+        - `entries`: Component-specific settings as key-value pairs.
+
+        Entry values can be:
+        - Simple types: booleans, integers, floating point numbers, strings.
+        - Complex types: lists, and attribute sets (RON structs).
+        - Special types:
+          - `raw`: The value is stored as-is.
+          - `option`: The value is stored as an optional value. (e.g. `Some(value)` or `None`).
+          - `char`: The value is stored as a single character. (e.g. `'a'`).
+          - `map`: The value is stored as a map. (e.g. `{ "key" = "value"; }`).
+          - `tuple`: The value is stored as a tuple. (e.g. `(1, 2, 3)`).
+        - Named structs: A structured entry with a name identifier.
+
+        All values are serialized to RON format using `lib.cosmic.generators.toRON`.
       '';
     };
 
@@ -58,13 +71,26 @@
       type = with lib.types; attrsOf cosmicComponent;
       default = { };
       description = ''
-        Defines data entries for COSMIC components (e.g., `com.system76.CosmicComp`) in $XDG_DATA_HOME.
-        Each data entry includes:
-          - `version`: The version of the component's data schema.
-          - `entries`: A map of key-value pairs that define the component's data. Entries may include:
-            - Primitive values such as booleans, integers, floating point numbers, strings, lists and attribute sets (RON structs).
-            - Advanced structured values like raw RON, optionals, characters, maps, tuples, and named structs,
-              which follows the rules defined by `lib.cosmic.generators.toRON`.
+        Data files for COSMIC components stored in `$XDG_DATA_HOME`.
+
+        Each component is identified by its unique identifier (e.g., `com.system76.CosmicComp`).
+
+        Structure for each component:
+          - `version`: Schema version number for the component configuration.
+          - `entries`: Component-specific settings as key-value pairs.
+
+        Entry values can be:
+          - Simple types: booleans, integers, floating point numbers, strings.
+          - Complex types: lists, and attribute sets (RON structs).
+          - Special types:
+            - `raw`: The value is stored as-is.
+            - `option`: The value is stored as an optional value. (e.g. `Some(value)` or `None`).
+            - `char`: The value is stored as a single character. (e.g. `'a'`).
+            - `map`: The value is stored as a map. (e.g. `{ "key" = "value"; }`).
+            - `tuple`: The value is stored as a tuple. (e.g. `(1, 2, 3)`).
+          - Named structs: A structured entry with a name identifier.
+
+        All values are serialized to RON format using `lib.cosmic.generators.toRON`.
       '';
     };
 
@@ -91,17 +117,39 @@
         };
       };
       description = ''
-        Defines state entries for COSMIC components (e.g., `com.system76.CosmicComp`) in $XDG_STATE_HOME.
-        Each state entry includes:
-          - `version`: The version of the component's state schema.
-          - `entries`: A map of key-value pairs that define the component's state. Entries may include:
-            - Primitive values such as booleans, integers, floating point numbers, strings, lists and attribute sets (RON structs).
-            - Advanced structured values like raw RON, optionals, characters, maps, tuples, and named structs,
-              which follows the rules defined by `lib.cosmic.generators.toRON`.
+        State files for COSMIC components stored in `$XDG_STATE_HOME`.
+
+        Each component is identified by its unique identifier (e.g., `com.system76.CosmicComp`).
+
+        Structure for each component:
+          - `version`: Schema version number for the component configuration.
+          - `entries`: Component-specific settings as key-value pairs.
+
+        Entry values can be:
+          - Simple types: booleans, integers, floating point numbers, strings.
+          - Complex types: lists, and attribute sets (RON structs).
+          - Special types:
+            - `raw`: The value is stored as-is.
+            - `option`: The value is stored as an optional value. (e.g. `Some(value)` or `None`).
+            - `char`: The value is stored as a single character. (e.g. `'a'`).
+            - `map`: The value is stored as a map. (e.g. `{ "key" = "value"; }`).
+            - `tuple`: The value is stored as a tuple. (e.g. `(1, 2, 3)`).
+          - Named structs: A structured entry with a name identifier.
+
+        All values are serialized to RON format using `lib.cosmic.generators.toRON`.
       '';
     };
 
-    resetFiles = lib.mkEnableOption "COSMIC files reset";
+    resetFiles = lib.mkEnableOption "COSMIC configuration files reset" // {
+      description = ''
+        Whether to enable COSMIC configuration files reset.
+
+        When enabled, this option will delete any COSMIC-related files in the specified
+        XDG directories that were not explicitly declared in your configuration. This
+        ensures that your COSMIC desktop environment remains in a clean, known state
+        as defined by your `home-manager` configuration.
+      '';
+    };
 
     resetFilesDirectories = lib.mkOption {
       type =
@@ -122,7 +170,16 @@
         "data"
         "state"
       ];
-      description = "XDG directories to reset.";
+      description = ''
+        XDG base directories to reset when `resetFiles` is enabled.
+
+        Available directories:
+        - config: User configuration ($XDG_CONFIG_HOME)
+        - data: Application data ($XDG_DATA_HOME)
+        - state: Runtime state ($XDG_STATE_HOME)
+        - cache: Cached data ($XDG_CACHE_HOME)
+        - runtime: Runtime files ($XDG_RUNTIME_DIR)
+      '';
     };
 
     resetFilesExclude = lib.mkOption {
@@ -135,7 +192,13 @@
         "com.system76.CosmicTerm/v1/{font_size,font_family}"
         "com.system76.{CosmicComp,CosmicPanel.Dock}/v1"
       ];
-      description = "Patterns to exclude from reset (supports globbing and brace expansion).";
+      description = ''
+        Patterns to exclude from the reset operation when `resetFiles` is enabled.
+
+        Supports glob patterns and brace expansion for matching files and directories.
+
+        Use this option to preserve specific files or directories from being reset.
+      '';
     };
   };
 

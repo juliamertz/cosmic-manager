@@ -43,7 +43,7 @@
             if value ? __type then
               if value.__type == "raw" then
                 toString value.value
-              else if value.__type == "optional" then
+              else if value.__type == "option" then
                 if value.value == null then "None" else "Some(${toRON' startIndent value.value})"
               else if value.__type == "char" then
                 if builtins.stringLength value.value == 1 then

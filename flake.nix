@@ -1,5 +1,5 @@
 {
-  description = "Manage COSMIC Desktop using home-manager";
+  description = "Manage COSMIC desktop declaratively using home-manager";
 
   inputs = {
     flake-parts = {
@@ -29,11 +29,44 @@
       };
 
       perSystem =
-        { pkgs, ... }:
+        { pkgs, self', ... }:
+        let
+          inherit (pkgs) lib;
+
+          version = inputs.self.shortRev or inputs.self.dirtyShortRev or "unknown";
+
+          mkOptionsDoc = pkgs.callPackage ./docs/options.nix { };
+          mkSite = pkgs.callPackage ./docs/generate-website.nix { };
+        in
         {
           devShells.default = import ./shell.nix { inherit pkgs; };
 
           formatter = pkgs.treefmt;
+
+          packages = {
+            home-manager-options = mkOptionsDoc {
+              inherit version;
+              moduleRoot = ./modules;
+            };
+
+            site =
+              let
+                src = lib.fileset.toSource {
+                  root = ./.;
+                  fileset = lib.fileset.unions [
+                    ./docs/book.toml
+                    ./docs/src
+                  ];
+                };
+              in
+              mkSite {
+                pname = "cosmic-manager-website";
+                inherit version src;
+
+                sourceRoot = "${src.name}/docs";
+                options = self'.packages.home-manager-options;
+              };
+          };
         };
     };
 }
