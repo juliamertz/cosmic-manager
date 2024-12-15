@@ -180,8 +180,9 @@
           configure-cosmic = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
             run ${lib.getExe cosmic-ctl} apply ${json}
           '';
+
           reset-cosmic = lib.mkIf cfg.resetFiles (
-            lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+            lib.hm.dag.entryBefore [ "configure-cosmic" ] ''
               run ${lib.getExe cosmic-ctl} reset --force --xdg-dirs ${builtins.concatStringsSep "," cfg.resetFilesDirectories} ${
                 lib.optionalString (
                   builtins.length cfg.resetFilesExclude > 0
