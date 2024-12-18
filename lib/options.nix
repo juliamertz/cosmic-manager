@@ -10,7 +10,7 @@
       type =
         with lib.types;
         submodule {
-          freeformType = cosmicEntryValue;
+          freeformType = attrsOf cosmicEntryValue;
           inherit options;
         };
       default = { };
