@@ -1,3 +1,12 @@
+[formatter.deadnix]
+command = "deadnix"
+options = ["--edit"]
+includes = ["*.nix"]
+
 [formatter.nixfmt]
 command = "nixfmt"
+includes = ["*.nix"]
+
+[formatter.statix]
+command = "statix-fix"
 includes = ["*.nix"]

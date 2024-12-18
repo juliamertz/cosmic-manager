@@ -11,9 +11,17 @@
       lib
       pkgs
       ;
-    modules = [
-      ./files.nix
-    ];
+    modules =
+      let
+        appsByName = ./apps/by-name;
+      in
+      [
+        ./files.nix
+      ]
+      ++ lib.foldlAttrs (
+        prev: name: type:
+        prev ++ lib.optional (type == "directory") (appsByName + "/${name}")
+      ) [ ] (builtins.readDir appsByName);
   };
 
   options.wayland.desktopManager.cosmic.enable =

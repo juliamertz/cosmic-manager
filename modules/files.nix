@@ -237,7 +237,7 @@
             operation = "write";
             xdg_directory = xdgDirectory;
             entries = builtins.mapAttrs (
-              _key: value: lib.cosmic.generators.toRON 0 value.value
+              _key: value: lib.cosmic.generators.toRON 0 value
             ) details.entries;
           }) components
         );
@@ -255,7 +255,7 @@
     {
       assertions = [
         {
-          assertion = !cfg.resetFiles || builtins.length cfg.resetFilesDirectories > 0;
+          assertion = cfg.resetFiles -> builtins.length cfg.resetFilesDirectories > 0;
           message = "At least one XDG directory must be selected to reset COSMIC files.";
         }
       ];
