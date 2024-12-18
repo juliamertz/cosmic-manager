@@ -174,11 +174,11 @@
         XDG base directories to reset when `resetFiles` is enabled.
 
         Available directories:
-        - config: User configuration ($XDG_CONFIG_HOME)
-        - data: Application data ($XDG_DATA_HOME)
-        - state: Runtime state ($XDG_STATE_HOME)
-        - cache: Cached data ($XDG_CACHE_HOME)
-        - runtime: Runtime files ($XDG_RUNTIME_DIR)
+        - `config`: User configuration (`$XDG_CONFIG_HOME`)
+        - `data`: Application data (`$XDG_DATA_HOME`)
+        - `state`: Runtime state (`$XDG_STATE_HOME`)
+        - `cache`: Cached data (`$XDG_CACHE_HOME`)
+        - `runtime`: Runtime files (`$XDG_RUNTIME_DIR`)
       '';
     };
 
@@ -194,7 +194,6 @@
       ];
       description = ''
         Patterns to exclude from the reset operation when `resetFiles` is enabled.
-
         Supports glob patterns and brace expansion for matching files and directories.
 
         Use this option to preserve specific files or directories from being reset.

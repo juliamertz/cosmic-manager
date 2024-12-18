@@ -33,9 +33,6 @@
         };
         description = ''
           Configuration entries for the component.
-
-          Each entry can be either a direct value or a structured entry.
-          Direct values are automatically coerced to structured entries.
         '';
       };
     };
