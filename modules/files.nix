@@ -234,6 +234,7 @@
           lib.mapAttrsToList (component: details: {
             inherit component;
             inherit (details) version;
+
             operation = "write";
             xdg_directory = xdgDirectory;
             entries = builtins.mapAttrs (
@@ -261,7 +262,7 @@
       ];
 
       home = {
-        activation = lib.mkIf config.wayland.desktopManager.cosmic.enable {
+        activation = lib.mkIf cfg.enable {
           configure-cosmic = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
             run ${lib.getExe cosmic-ctl} apply ${json}
           '';
@@ -277,7 +278,7 @@
           );
         };
 
-        packages = [ cosmic-ctl ];
+        packages = lib.optionals cfg.enable [ cosmic-ctl ];
       };
     };
 }
