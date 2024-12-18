@@ -50,7 +50,7 @@
                   }
                 ];
 
-                home.packages = [ cfg.package ];
+                home.packages = lib.optionals (cfg.package != null) [ cfg.package ];
 
                 wayland.desktopManager.cosmic.configFile = {
                   "${identifier}" = {
