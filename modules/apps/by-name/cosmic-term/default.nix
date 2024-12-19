@@ -270,7 +270,7 @@ lib.cosmic.applications.mkCosmicApplication {
             profiles;
       };
 
-    colorschemes =
+    colorSchemes =
       let
         colorsSubmodule =
           scope:
@@ -335,7 +335,7 @@ lib.cosmic.applications.mkCosmicApplication {
               };
             };
           };
-        colorschemeSubmodule = lib.types.submodule {
+        colorSchemeSubmodule = lib.types.submodule {
           freeformType = with lib.types; attrsOf cosmicEntryValue;
           options = {
             bright = lib.mkOption {
@@ -405,7 +405,7 @@ lib.cosmic.applications.mkCosmicApplication {
         };
       in
       mkNullOrOption {
-        type = lib.types.listOf colorschemeSubmodule;
+        type = lib.types.listOf colorSchemeSubmodule;
         example = [
           {
             mode = "dark";
@@ -467,10 +467,10 @@ lib.cosmic.applications.mkCosmicApplication {
         };
       })
 
-      (lib.optionalAttrs (cfg.colorschemes != null) (
+      (lib.optionalAttrs (cfg.colorSchemes != null) (
         let
-          colorSchemes = builtins.filter (colorscheme: colorscheme.mode == "dark") cfg.colorschemes;
-          colorSchemesLight = builtins.filter (colorscheme: colorscheme.mode == "light") cfg.colorschemes;
+          colorSchemes = builtins.filter (colorscheme: colorscheme.mode == "dark") cfg.colorSchemes;
+          colorSchemesLight = builtins.filter (colorscheme: colorscheme.mode == "light") cfg.colorSchemes;
         in
         {
           color_schemes_dark = {
