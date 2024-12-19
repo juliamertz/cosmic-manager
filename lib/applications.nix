@@ -3,7 +3,7 @@
   mkCosmicApplication =
     {
       configurationVersion,
-      extraConfig ? cfg: { },
+      extraConfig ? _cfg: { },
       extraOptions ? { },
       hasSettings ? true,
       identifier,

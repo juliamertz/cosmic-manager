@@ -23,7 +23,10 @@
               model = "";
               layout = "br";
               variant = "";
-              options = null;
+              options = {
+                __type = "option";
+                value = null;
+              };
               repeat_delay = 600;
               repeat_rate = 25;
             };
@@ -38,8 +41,8 @@
         "com.system76.CosmicTerm" = {
           version = 1;
           entries = {
+            font_name = "JetBrains Mono";
             font_size = 16;
-            font_family = "JetBrains Mono";
           };
         };
       };
@@ -236,9 +239,9 @@
 
             operation = "write";
             xdg_directory = xdgDirectory;
-            entries = builtins.mapAttrs (
-              _key: value: lib.cosmic.generators.toRON 0 value
-            ) details.entries;
+            entries = builtins.mapAttrs (_key: value: lib.cosmic.generators.toRON 0 value) (
+              lib.cosmic.utils.cleanNullsExceptOptional details.entries
+            );
           }) components
         );
 
