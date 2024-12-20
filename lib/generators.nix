@@ -41,14 +41,14 @@
             Null values are cleaned up by lib.cosmic.utils.cleanNullsExceptOptional.
             If you are seeing this message, please report this, as it should not happen.
 
-            If you want to represent a null value in RON, you can use the `option` type.
+            If you want to represent a null value in RON, you can use the `optional` type.
           '';
           path = throw "Path is not supported in RON";
           set =
             if value ? __type then
               if value.__type == "raw" then
                 toString value.value
-              else if value.__type == "option" then
+              else if value.__type == "optional" then
                 if value.value == null then "None" else "Some(${toRON' startIndent value.value})"
               else if value.__type == "char" then
                 if builtins.stringLength value.value == 1 then

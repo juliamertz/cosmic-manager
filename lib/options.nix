@@ -34,7 +34,7 @@
             foo = "bar";
             baz = 42;
             optional = {
-              __type = "option";
+              __type = "optional";
               value = 3;
             };
             raw = {

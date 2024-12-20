@@ -8,7 +8,7 @@
           builtins.mapAttrs (
             _name: value:
             if
-              builtins.isAttrs value && !(value ? __type && value.__type == "option" && value.value == null)
+              builtins.isAttrs value && !(value ? __type && value.__type == "optional" && value.value == null)
             then
               cleanNullsExceptOptional' value
             else

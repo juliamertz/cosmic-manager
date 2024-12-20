@@ -24,7 +24,7 @@
               layout = "br";
               variant = "";
               options = {
-                __type = "option";
+                __type = "optional";
                 value = null;
               };
               repeat_delay = 600;
@@ -60,7 +60,7 @@
         - Complex types: lists, and attribute sets (RON structs).
         - Special types:
           - `raw`: The value is stored as-is.
-          - `option`: The value is stored as an optional value. (e.g. `Some(value)` or `None`).
+          - `optional`: The value is stored as an optional value. (e.g. `Some(value)` or `None`).
           - `char`: The value is stored as a single character. (e.g. `'a'`).
           - `map`: The value is stored as a map. (e.g. `{ "key" = "value" }`).
           - `tuple`: The value is stored as a tuple. (e.g. `(1, 2, 3)`).
@@ -87,7 +87,7 @@
           - Complex types: lists, and attribute sets (RON structs).
           - Special types:
             - `raw`: The value is stored as-is.
-            - `option`: The value is stored as an optional value. (e.g. `Some(value)` or `None`).
+            - `optional`: The value is stored as an optional value. (e.g. `Some(value)` or `None`).
             - `char`: The value is stored as a single character. (e.g. `'a'`).
             - `map`: The value is stored as a map. (e.g. `{ "key" = "value" }`).
             - `tuple`: The value is stored as a tuple. (e.g. `(1, 2, 3)`).
@@ -133,7 +133,7 @@
           - Complex types: lists, and attribute sets (RON structs).
           - Special types:
             - `raw`: The value is stored as-is.
-            - `option`: The value is stored as an optional value. (e.g. `Some(value)` or `None`).
+            - `optional`: The value is stored as an optional value. (e.g. `Some(value)` or `None`).
             - `char`: The value is stored as a single character. (e.g. `'a'`).
             - `map`: The value is stored as a map. (e.g. `{ "key" = "value" }`).
             - `tuple`: The value is stored as a tuple. (e.g. `(1, 2, 3)`).

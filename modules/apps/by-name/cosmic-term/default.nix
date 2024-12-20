@@ -13,7 +13,7 @@ lib.cosmic.applications.mkCosmicApplication {
 
   settingsOptions = {
     app_theme = mkNullOrOption {
-      type = lib.types.cosmicRawEnum [
+      type = lib.types.rawRonEnum [
         "Dark"
         "Light"
         "System"
@@ -453,7 +453,7 @@ lib.cosmic.applications.mkCosmicApplication {
     wayland.desktopManager.cosmic.configFile."com.system76.CosmicTerm".entries = lib.mkMerge [
       (lib.optionalAttrs (cfg.profiles != null) {
         default_profile = {
-          __type = "option";
+          __type = "optional";
           value = lib.lists.findFirstIndex (profile: profile.is_default) null cfg.profiles;
         };
         profiles = {
