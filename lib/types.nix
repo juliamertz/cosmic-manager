@@ -40,12 +40,7 @@
 
   rawRon = lib.mkOptionType {
     check =
-      value:
-      builtins.isAttrs value
-      && value ? __type
-      && value.__type == "raw"
-      && value ? value
-      && builtins.isString value.value;
+      value: value ? __type && value.__type == "raw" && value ? value && builtins.isString value.value;
     description = "raw RON value";
     descriptionClass = "noun";
     merge = lib.options.mergeEqualOption;
@@ -58,28 +53,14 @@
         values:
         let
           name = "rawRonEnum";
-          show =
-            v:
-            if builtins.isString v then
-              ''"${v}"''
-            else if builtins.isInt v then
-              builtins.toString v
-            else if builtins.isBool v then
-              lib.boolToString v
-            else
-              ''<${builtins.typeOf v}>'';
+          show = v: ''"${v}"'';
         in
         if !builtins.all (value: builtins.isString value) values then
           throw "All values in the enum must be strings."
         else
           lib.mkOptionType {
             check =
-              value:
-              builtins.isAttrs value
-              && value ? __type
-              && value.__type == "raw"
-              && value ? value
-              && builtins.elem value.value values;
+              value: value ? __type && value.__type == "raw" && value ? value && builtins.elem value.value values;
             description =
               if values == [ ] then
                 "impossible (empty raw RON enum)"
@@ -102,8 +83,7 @@
   ronChar = lib.mkOptionType {
     check =
       value:
-      builtins.isAttrs value
-      && value ? __type
+      value ? __type
       && value.__type == "char"
       && value ? value
       && builtins.isString value.value
@@ -116,12 +96,7 @@
 
   ronMap = lib.mkOptionType {
     check =
-      value:
-      builtins.isAttrs value
-      && value ? __type
-      && value.__type == "map"
-      && value ? value
-      && builtins.isAttrs value.value;
+      value: value ? __type && value.__type == "map" && value ? value && builtins.isAttrs value.value;
     description = "RON map";
     descriptionClass = "noun";
     merge = lib.options.mergeEqualOption;
@@ -131,11 +106,7 @@
   ronNamedStruct = lib.mkOptionType {
     check =
       value:
-      builtins.isAttrs value
-      && value ? __name
-      && builtins.isString value.__name
-      && value ? value
-      && builtins.isAttrs value.value;
+      value ? __name && builtins.isString value.__name && value ? value && builtins.isAttrs value.value;
     description = "RON named struct";
     descriptionClass = "noun";
     merge = lib.options.mergeEqualOption;
@@ -145,8 +116,7 @@
   ronOptional = lib.mkOptionType {
     check =
       value:
-      builtins.isAttrs value
-      && value ? __type
+      value ? __type
       && value.__type == "optional"
       && value ? value
       && !builtins.isFunction value.value
@@ -159,12 +129,7 @@
 
   ronTuple = lib.mkOptionType {
     check =
-      value:
-      builtins.isAttrs value
-      && value ? __type
-      && value.__type == "tuple"
-      && value ? value
-      && builtins.isList value.value;
+      value: value ? __type && value.__type == "tuple" && value ? value && builtins.isList value.value;
     description = "RON tuple";
     descriptionClass = "noun";
     merge = lib.options.mergeEqualOption;
