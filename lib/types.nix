@@ -54,6 +54,12 @@
       && builtins.isString value.value;
     description = "raw RON value";
     descriptionClass = "noun";
+    emptyValue = {
+      value = {
+        __type = "raw";
+        value = "";
+      };
+    };
     merge = lib.options.mergeEqualOption;
     name = "rawRon";
   };
@@ -139,9 +145,82 @@
       && builtins.isAttrs value.value;
     description = "RON map";
     descriptionClass = "noun";
-    merge = lib.options.mergeEqualOption;
+    emptyValue = {
+      value = {
+        __type = "map";
+        value = { };
+      };
+    };
+    merge = loc: defs: {
+      __type = "map";
+      value = builtins.foldl' (
+        first: def: lib.recursiveUpdate first.value.value def.value.value
+      ) (builtins.head defs) (builtins.tail defs);
+    };
     name = "ronMap";
   };
+
+  ronMapOf =
+    let
+      name = "ronMapOf";
+      ronMapOf' =
+        elemType:
+        lib.mkOptionType {
+          check =
+            value:
+            let
+              keys = builtins.attrNames value;
+            in
+            builtins.isAttrs value
+            &&
+              [
+                "__type"
+                "value"
+              ] == keys
+            && value.__type == "map"
+            && builtins.isAttrs value.value;
+          description = "RON map of ${
+            lib.types.optionDescriptionPhrase (class: class == "noun" || class == "composite") elemType
+          }";
+          descriptionClass = "composite";
+          emptyValue = {
+            value = {
+              __type = "map";
+              value = { };
+            };
+          };
+          functor = lib.defaultFunctor name // {
+            wrapped = elemType;
+          };
+          getSubModules = elemType.getSubModules;
+          getSubOptions = prefix: elemType.getSubOptions (prefix ++ [ "<name>" ]);
+          merge =
+            loc: defs:
+            let
+              pushPositions = map (
+                def:
+                builtins.mapAttrs (n: v: {
+                  inherit (def) file;
+                  value = v;
+                }) def.value.value
+              );
+            in
+            {
+              __type = "map";
+              value = builtins.mapAttrs (n: v: v.value) (
+                lib.filterAttrs (n: v: v ? value) (
+                  lib.zipAttrsWith (
+                    name: defs: (lib.mergeDefinitions (loc ++ [ name ]) elemType defs).optionalValue
+                  ) (pushPositions defs)
+                )
+              );
+            };
+          inherit name;
+          nestedTypes.elemType = elemType;
+          substSubModules = m: ronMapOf' (elemType.substSubModules m);
+        };
+    in
+    ronMapOf';
 
   ronNamedStruct = lib.mkOptionType {
     check =
@@ -159,9 +238,92 @@
       && builtins.isAttrs value.value;
     description = "RON named struct";
     descriptionClass = "noun";
-    merge = lib.options.mergeEqualOption;
+    merge = loc: defs: {
+      __name = builtins.foldl' (
+        first: def:
+        if def.value.__name != first.value.__name then
+          throw "The option '${lib.showOption loc}' has conflicting definition values: ${
+            lib.options.showDefs [
+              first
+              def
+            ]
+          }\nUse `lib.mkForce value` or `lib.mkDefault value` to change the priority on any of these definitions."
+        else
+          first.value.__name
+      ) (builtins.head defs) (builtins.tail defs);
+      value = builtins.foldl' (
+        first: def: lib.recursiveUpdate first.value.value def.value.value
+      ) (builtins.head defs) (builtins.tail defs);
+    };
     name = "ronNamedStruct";
   };
+
+  ronNamedStructOf =
+    let
+      name = "ronNamedStructOf";
+      ronNamedStructOf' =
+        elemType:
+        lib.mkOptionType {
+          check =
+            value:
+            let
+              keys = builtins.attrNames value;
+            in
+            builtins.isAttrs value
+            &&
+              [
+                "__name"
+                "value"
+              ] == keys
+            && builtins.isString value.__name
+            && builtins.isAttrs value.value;
+          description = "RON named struct of ${
+            lib.types.optionDescriptionPhrase (class: class == "noun" || class == "composite") elemType
+          }";
+          descriptionClass = "composite";
+          functor = lib.defaultFunctor name // {
+            wrapped = elemType;
+          };
+          getSubModules = elemType.getSubModules;
+          getSubOptions = prefix: elemType.getSubOptions (prefix ++ [ "<name>" ]);
+          merge =
+            loc: defs:
+            let
+              pushPositions = map (
+                def:
+                builtins.mapAttrs (n: v: {
+                  inherit (def) file;
+                  value = v;
+                }) def.value.value
+              );
+            in
+            {
+              __name = builtins.foldl' (
+                first: def:
+                if def.value.__name != first.value.__name then
+                  throw "The option '${lib.showOption loc}' has conflicting definition values: ${
+                    lib.options.showDefs [
+                      first
+                      def
+                    ]
+                  }\nUse `lib.mkForce value` or `lib.mkDefault value` to change the priority on any of these definitions."
+                else
+                  first.value.__name
+              ) (builtins.head defs) (builtins.tail defs);
+              value = builtins.mapAttrs (n: v: v.value) (
+                lib.filterAttrs (n: v: v ? value) (
+                  lib.zipAttrsWith (
+                    name: defs: (lib.mergeDefinitions (loc ++ [ name ]) elemType defs).optionalValue
+                  ) (pushPositions defs)
+                )
+              );
+            };
+          inherit name;
+          nestedTypes.elemType = elemType;
+          substSubModules = m: ronNamedStructOf' (elemType.substSubModules m);
+        };
+    in
+    ronNamedStructOf';
 
   ronOptional = lib.mkOptionType {
     check =
@@ -200,9 +362,80 @@
       && builtins.isList value.value;
     description = "RON tuple";
     descriptionClass = "noun";
-    merge = lib.options.mergeEqualOption;
+    emptyValue = {
+      value = {
+        __type = "tuple";
+        value = [ ];
+      };
+    };
+    merge = loc: defs: {
+      __type = "tuple";
+      value = builtins.concatLists (map (x: x.value.value) defs);
+    };
     name = "ronTuple";
   };
+
+  ronTupleOf =
+    let
+      name = "ronTupleOf";
+      ronTupleOf' =
+        elemType:
+        lib.mkOptionType {
+          check =
+            value:
+            let
+              keys = builtins.attrNames value;
+            in
+            builtins.isAttrs value
+            &&
+              [
+                "__type"
+                "value"
+              ] == keys
+            && value.__type == "tuple"
+            && builtins.isList value.value;
+          description = "RON tuple of ${
+            lib.types.optionDescriptionPhrase (class: class == "noun" || class == "composite") elemType
+          }";
+          descriptionClass = "composite";
+          emptyValue = {
+            value = {
+              __type = "tuple";
+              value = [ ];
+            };
+          };
+          functor = lib.defaultFunctor name // {
+            wrapped = elemType;
+          };
+          getSubModules = elemType.getSubModules;
+          getSubOptions = prefix: elemType.getSubOptions (prefix ++ [ "*" ]);
+          merge = loc: defs: {
+            __type = "tuple";
+            value = map (x: x.value) (
+              builtins.filter (x: x ? value) (
+                builtins.concatLists (
+                  lib.imap1 (
+                    n: def:
+                    lib.imap1 (
+                      m: def':
+                      (lib.mergeDefinitions (loc ++ [ "[definition ${toString n}-entry ${toString m}]" ]) elemType [
+                        {
+                          inherit (def) file;
+                          value = def';
+                        }
+                      ]).optionalValue
+                    ) def.value.value
+                  ) defs
+                )
+              )
+            );
+          };
+          inherit name;
+          nestedTypes.elemType = elemType;
+          substSubModules = m: ronTupleOf' (elemType.substSubModules m);
+        };
+    in
+    ronTupleOf';
 
   hexColor = lib.types.strMatching "^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$";
 }
