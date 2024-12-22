@@ -31,11 +31,17 @@
   cosmicEntryValue =
     with lib.types;
     nullOr (oneOf [
-      str
-      number
+      (attrsOf anything)
       bool
       (listOf anything)
-      (attrsOf anything)
+      number
+      rawRon
+      ronChar
+      (ronMapOf anything)
+      (ronNamedStructOf anything)
+      (ronOptionalOf anything)
+      (ronTupleOf anything)
+      str
     ]);
 
   rawRon = lib.mkOptionType {
@@ -345,6 +351,52 @@
     merge = lib.options.mergeEqualOption;
     name = "ronOptional";
   };
+
+  ronOptionalOf =
+    let
+      name = "ronOptionalOf";
+      ronOptionalOf' =
+        elemType:
+        lib.mkOptionType {
+          check =
+            value:
+            let
+              keys = builtins.attrNames value;
+            in
+            builtins.isAttrs value
+            &&
+              [
+                "__type"
+                "value"
+              ] == keys
+            && value.__type == "optional"
+            && !builtins.isFunction value.value
+            && !builtins.isPath value.value;
+          description = "RON optional of ${
+            lib.types.optionDescriptionPhrase (class: class == "noun" || class == "composite") elemType
+          }";
+          descriptionClass = "composite";
+          functor = lib.defaultFunctor name // {
+            wrapped = elemType;
+          };
+          getSubModules = elemType.getSubModules;
+          getSubOptions = prefix: elemType.getSubOptions (prefix ++ [ "<name>" ]);
+          merge = loc: defs: {
+            __type = "optional";
+            value =
+              (lib.mergeDefinitions loc (lib.types.nullOr elemType) (
+                map (def: {
+                  inherit (def) file;
+                  inherit (def.value) value;
+                }) defs
+              )).mergedValue;
+          };
+          inherit name;
+          nestedTypes.elemType = elemType;
+          substSubModules = m: ronOptionalOf' (elemType.substSubModules m);
+        };
+    in
+    ronOptionalOf';
 
   ronTuple = lib.mkOptionType {
     check =
