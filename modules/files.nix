@@ -64,6 +64,7 @@
           - `char`: The value is stored as a single character. (e.g. `'a'`).
           - `map`: The value is stored as a map. (e.g. `{ "key" = "value" }`).
           - `tuple`: The value is stored as a tuple. (e.g. `(1, 2, 3)`).
+          - `enum`: The value is stored as an enum variant.
         - Named structs: A structured entry with a name identifier.
 
         All values are serialized to RON format using `lib.cosmic.generators.toRON`.
@@ -91,6 +92,7 @@
             - `char`: The value is stored as a single character. (e.g. `'a'`).
             - `map`: The value is stored as a map. (e.g. `{ "key" = "value" }`).
             - `tuple`: The value is stored as a tuple. (e.g. `(1, 2, 3)`).
+            - `enum`: The value is stored as an enum variant.
           - Named structs: A structured entry with a name identifier.
 
         All values are serialized to RON format using `lib.cosmic.generators.toRON`.
@@ -138,6 +140,7 @@
             - `char`: The value is stored as a single character. (e.g. `'a'`).
             - `map`: The value is stored as a map. (e.g. `{ "key" = "value" }`).
             - `tuple`: The value is stored as a tuple. (e.g. `(1, 2, 3)`).
+            - `enum`: The value is stored as an enum variant.
           - Named structs: A structured entry with a name identifier.
 
         All values are serialized to RON format using `lib.cosmic.generators.toRON`.
