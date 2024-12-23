@@ -4,8 +4,7 @@
     options = {
       version = lib.mkOption {
         type = lib.types.ints.unsigned;
-        default = 1;
-        example = 2;
+        example = 1;
         description = ''
           Schema version number for the component configuration.
         '';
