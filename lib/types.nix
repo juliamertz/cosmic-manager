@@ -12,7 +12,6 @@
 
       entries = lib.mkOption {
         type = with lib.types; attrsOf cosmicEntryValue;
-        default = { };
         example = {
           autotile = true;
           autotile_behavior = {
