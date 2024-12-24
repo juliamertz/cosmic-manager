@@ -47,14 +47,29 @@
           set =
             if value ? __type then
               if value.__type == "raw" then
-                toString value.value
-              else if value.__type == "optional" then
-                if value.value == null then "None" else "Some(${toRON' startIndent value.value})"
-              else if value.__type == "char" then
-                if builtins.stringLength value.value == 1 then
-                  "'${value.value}'"
+                if value ? value then
+                  if builtins.isString value.value then
+                    toString value.value
+                  else
+                    throw "lib.cosmic.generators.toRON: raw type value must be a string."
                 else
-                  throw "lib.cosmic.generators.toRON: char type must be a single character."
+                  throw "lib.cosmic.generators.toRON: raw type must have a value."
+              else if value.__type == "optional" then
+                if value ? value then
+                  if value.value == null then "None" else "Some(${toRON' startIndent value.value})"
+                else
+                  throw "lib.cosmic.generators.toRON: optional type must have a value."
+              else if value.__type == "char" then
+                if value ? value then
+                  if builtins.isString value.value then
+                    if builtins.stringLength value.value == 1 then
+                      "'${value.value}'"
+                    else
+                      throw "lib.cosmic.generators.toRON: char type must be a single character."
+                  else
+                    throw "lib.cosmic.generators.toRON: char type must be a string value."
+                else
+                  throw "lib.cosmic.generators.toRON: char type must have a value."
               else if value.__type == "enum" then
                 if value ? variant then
                   if value ? value then
@@ -113,18 +128,24 @@
                 else
                   throw "lib.cosmic.generators.toRON: map type must have a value."
               else if value.__type == "tuple" then
-                let
-                  count = builtins.length value.value;
-                in
-                if count == 0 then
-                  "()"
+                if value ? value then
+                  if builtins.isList value.value then
+                    let
+                      count = builtins.length value.value;
+                    in
+                    if count == 0 then
+                      "()"
+                    else
+                      "(\n${
+                        lib.concatImapStringsSep "\n" (
+                          index: element:
+                          "${indent nextIndent}${toRON' nextIndent element}${lib.optionalString (index != count) ","}"
+                        ) value.value
+                      },\n${indent startIndent})"
+                  else
+                    throw "lib.cosmic.generators.toRON: tuple type must have a list of values."
                 else
-                  "(\n${
-                    lib.concatImapStringsSep "\n" (
-                      index: element:
-                      "${indent nextIndent}${toRON' nextIndent element}${lib.optionalString (index != count) ","}"
-                    ) value.value
-                  },\n${indent startIndent})"
+                  throw "lib.cosmic.generators.toRON: tuple type must have a value."
               else
                 throw "lib.cosmic.generators.toRON: set type ${value.__type} is not supported."
             else
