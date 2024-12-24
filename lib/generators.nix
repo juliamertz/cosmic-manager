@@ -49,7 +49,7 @@
               if value.__type == "raw" then
                 if value ? value then
                   if builtins.isString value.value then
-                    toString value.value
+                    value.value
                   else
                     throw "lib.cosmic.generators.toRON: raw type value must be a string."
                 else
