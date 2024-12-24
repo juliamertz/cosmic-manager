@@ -398,7 +398,7 @@
             wrapped = elemType;
           };
           inherit (elemType) getSubModules;
-          getSubOptions = prefix: elemType.getSubOptions (prefix ++ [ "<name>" ]);
+          getSubOptions = prefix: elemType.getSubOptions prefix;
           merge = loc: defs: {
             __type = "optional";
             value =
