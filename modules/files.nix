@@ -214,16 +214,17 @@
 
       cosmic-ctl = pkgs.rustPlatform.buildRustPackage {
         pname = "cosmic-ctl";
-        version = "unstable-2024-12-15";
+        version = "1.1.0";
 
         src = pkgs.fetchFromGitHub {
           owner = "cosmic-utils";
           repo = "cosmic-ctl";
-          rev = "9dcb348bb80ae688b7a9af24f246a1b3986d5d11";
-          hash = "sha256-lT+Pihx7//LNDOa7GNiwMIBdSju/RRhRT5PqKQWqHio=";
+          tag = "v1.1.0";
+          hash = "sha256-dcUzrJcwJpzbYPuqdHgm43NYbaowsFmFP4sS0cfzNAg=";
         };
 
-        cargoHash = "sha256-ymHFo7RGeG1LBhOUZrnPynQmOySRYC0eythFml5VgPc=";
+        useFetchCargoVendor = true;
+        cargoHash = "sha256-EReo2hkBaIO1YOBx4D9rQSXlx+3NK5VQtj59jfZZI/0=";
 
         meta = {
           description = "CLI for COSMIC Desktop configuration management";
