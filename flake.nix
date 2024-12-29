@@ -44,6 +44,8 @@
           formatter = pkgs.treefmt;
 
           packages = {
+            generate-shortcut-actions = pkgs.callPackage ./generators/shortcut-actions { };
+
             home-manager-options = mkOptionsDoc {
               inherit version;
               moduleRoot = ./modules;

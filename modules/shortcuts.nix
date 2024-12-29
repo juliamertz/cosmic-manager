@@ -3,166 +3,26 @@ let
   cfg = config.wayland.desktopManager.cosmic;
 
   inherit (lib.cosmic.options) mkNullOrOption;
-  inherit (lib.cosmic.utils) capitalizeWord;
+  inherit (lib.cosmic.utils) capitalizeWord rustToNixType;
 in
 {
   options.wayland.desktopManager.cosmic.shortcuts =
     let
-      /*
-        NOTE: Last updated: 27/12/2024 at 5:43 GMT-3 with the following commit:
-        https://github.com/pop-os/cosmic-settings-daemon/commit/61c76a9d060827402eeb9fe92cae73ce159d66e5
-        When updating, look in:
-          - config/src/shortcuts/action.rs -> For valid actions
-          - config/src/shortcuts/modifier.rs -> For valid modifiers
-          - config/src/shortcuts/binding.rs -> For shortcuts hashmap keys such as description, modifiers, and key
-          - config/src/shortcuts/mod.rs -> For the Shortcut struct, which should always be HashMap<Binding, Action>, but check for changes
-      */
       shortcutSubmodule =
         let
-          direction = [
-            "Down"
-            "Left"
-            "Right"
-            "Up"
-          ];
+          generatedActions = lib.importJSON ../generated/shortcut-actions.json;
 
-          enumVariants = [
-            # Close the active window
-            "Close"
-            # Show a debug overlay, if enabled in the compositor build
-            "Debug"
-            # Disable a default shortcut binding
-            "Disable"
-            # Change focus to the last workspace
-            "LastWorkspace"
-            # Maximize the active window
-            "Maximize"
-            # Migrate the active workspace to the next output
-            "MigrateWorkspaceToNextOutput"
-            # Migrate the active workspace to the previous output
-            "MigrateWorkspaceToPreviousOutput"
-            # Minimize the active window
-            "Minimize"
-            # Move a window to the last workspace
-            "MoveToLastWorkspace"
-            # Move a window to the next output
-            "MoveToNextOutput"
-            # Move a window to the next workspace
-            "MoveToNextWorkspace"
-            # Move a window to the previous output
-            "MoveToPreviousOutput"
-            # Move a window to the previous workspace
-            "MoveToPreviousWorkspace"
-            # Change focus to the next output
-            "NextOutput"
-            # Change focus to the next workspace
-            "NextWorkspace"
-            # Change focus to the previous output
-            "PreviousOutput"
-            # Change focus to the previous workspace
-            "PreviousWorkspace"
-            # Move a window to the last workspace
-            "SendToLastWorkspace"
-            # Move a window to the next output
-            "SendToNextOutput"
-            # Move a window to the next workspace
-            "SendToNextWorkspace"
-            # Move a window to the previous output
-            "SendToPreviousOutput"
-            # Move a window to the previous workspace
-            "SendToPreviousWorkspace"
-            # Swap positions of the active window with another
-            "SwapWindow"
-            # Stop the compositor
-            "Terminate"
-            # Toggle the orientation of a tiling group
-            "ToggleOrientation"
-            # Toggle window stacking for the active window
-            "ToggleStacking"
-            # Toggle the sticky state of the active window
-            "ToggleSticky"
-            # Toggle tiling mode of the active workspace
-            "ToggleTiling"
-            # Toggle between tiling and floating window states for the active window
-            "ToggleWindowFloating"
-          ];
+          allActions = generatedActions.Actions;
+          actionDependencies = generatedActions.Dependencies;
 
-          focusDirection = [
-            "Down"
-            "In"
-            "Left"
-            "Right"
-            "Out"
-            "Up"
-          ];
+          actionsWithoutType = builtins.filter (action: !(builtins.hasAttr "type" action)) allActions;
+          actionsWithType = builtins.filter (action: builtins.hasAttr "type" action) allActions;
+          actionsWithTypeGrouped = builtins.groupBy (action: action.type) actionsWithType;
+          actionsWithTypeKeyValue = builtins.mapAttrs (
+            _type: actions: map (action: action.name) actions
+          ) actionsWithTypeGrouped;
 
-          orientation = [
-            "Horizontal"
-            "Vertical"
-          ];
-
-          resizeDirection = [
-            "Inwards"
-            "Outwards"
-          ];
-
-          # NOTE: Unused but kept since it might be useful in the future
-          # deadnix: skip
-          resizeEdge = [
-            "Bottom"
-            "BottomLeft"
-            "BottomRight"
-            "Left"
-            "Right"
-            "Top"
-            "TopLeft"
-            "TopRight"
-          ];
-
-          system = [
-            # Opens the application library
-            "AppLibrary"
-            # Decreases screen brightness
-            "BrightnessDown"
-            # Increases screen brightness
-            "BrightnessUp"
-            # Opens the home folder in a system default file browser
-            "HomeFolder"
-            # Decreases keyboard brightness
-            "KeyboardBrightnessDown"
-            # Increases keyboard brightness
-            "KeyboardBrightnessUp"
-            # Opens the launcher
-            "Launcher"
-            # Locks the screen
-            "LockScreen"
-            # Mutes the active audio output
-            "Mute"
-            # Mutes the active microphone
-            "MuteMic"
-            # Plays and Pauses audio
-            "PlayPause"
-            # Goes to the next track
-            "PlayNext"
-            # Go to the previous track
-            "PlayPrev"
-            # Takes a screenshot
-            "Screenshot"
-            # Opens the system default terminal
-            "Terminal"
-            # Lowers the volume of the active audio output
-            "VolumeLower"
-            # Raises the volume of the active audio output
-            "VolumeRaise"
-            # Opens the system default web browser
-            "WebBrowser"
-            # Opens the (alt+tab) window switcher
-            "WindowSwitcher"
-            # Opens the (alt+shift+tab) window switcher
-            "WindowSwitcherPrevious"
-            # Opens the workspace overview
-            "WorkspaceOverview"
-          ];
+          simpleActions = map (action: action.name) actionsWithoutType;
         in
         lib.types.submodule {
           options = {
@@ -189,49 +49,22 @@ in
             action = lib.mkOption {
               type =
                 with lib.types;
-                oneOf [
-                  (ronEnum enumVariants)
-                  (ronTupleEnumOf (ronEnum direction) [
-                    # Migrate the active workspace to the output in the given direction
-                    "MigrateWorkspaceToOutput"
-                    # Move a window in the given direction
-                    "Move"
-                    # Move a window to the given output
-                    "MoveToOutput"
-                    # Move a window to the output in the given direction
-                    "SendToOutput"
-                    # Move to an output in the given direction
-                    "SwitchOutput"
-                  ])
-                  (ronTupleEnumOf ints.u8 [
-                    # Move a window to the given workspace
-                    "MoveToWorkspace"
-                    # Move a window to the given workspace
-                    "SendToWorkspace"
-                    # Change focus to the given workspace ID
-                    "Workspace"
-                  ])
-                  (ronTupleEnumOf (ronEnum focusDirection)
-                    # Change focus to the window or workspace in the given direction
-                    [ "Focus" ]
-                  )
-                  (ronTupleEnumOf (ronEnum orientation)
-                    # Change the orientation of a tiling group
-                    [ "Orientation" ]
-                  )
-                  (ronTupleEnumOf (ronEnum resizeDirection)
-                    # Resize the active window in a given direction
-                    [ "Resizing" ]
-                  )
-                  (ronTupleEnumOf (ronEnum system)
-                    # Perform a common system operation
-                    [ "System" ]
-                  )
-                  (ronTupleEnumOf str
-                    # Execute a command with any given arguments
-                    [ "Spawn" ]
-                  )
-                ];
+                oneOf (
+                  [
+                    (ronEnum simpleActions)
+                  ]
+                  ++ lib.mapAttrsToList (
+                    type: names:
+                    let
+                      elemType =
+                        if builtins.hasAttr type actionDependencies then
+                          ronEnum (map (action: action.name) actionDependencies.${type})
+                        else
+                          rustToNixType type;
+                    in
+                    ronTupleEnumOf elemType names
+                  ) actionsWithTypeKeyValue
+                );
               example = {
                 __type = "enum";
                 variant = "Spawn";
