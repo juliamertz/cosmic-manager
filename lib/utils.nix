@@ -47,7 +47,7 @@
           handleArray =
             type:
             let
-              matches = builtins.match "\\[([^;]*);([0-9]*)\\]" type;
+              matches = builtins.match "[[]([^;]+); *([0-9]+)[]]" type;
               innerType = if matches != null then builtins.head matches else null;
               size = if matches != null then builtins.elemAt matches 1 else null;
             in
