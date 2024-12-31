@@ -72,6 +72,16 @@
     name = "rawRon";
   };
 
+  ronArrayOf =
+    elemType: size:
+    with lib.types;
+    addCheck (listOf elemType) (x: builtins.length x == size)
+    // {
+      description = "list of ${
+        optionDescriptionPhrase (class: class == "noun" || class == "composite") elemType
+      } with a fixed-size of ${toString size} elements";
+    };
+
   ronChar = lib.mkOptionType {
     check =
       value:

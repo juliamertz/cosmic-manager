@@ -52,13 +52,7 @@
               size = if matches != null then builtins.elemAt matches 1 else null;
             in
             if matches != null then
-              with lib.types;
-              (addCheck (listOf (rustToNixType' innerType)) (x: builtins.length x == (builtins.fromJSON size)))
-              // {
-                description = "list of ${
-                  optionDescriptionPhrase (class: class == "noun" || class == "composite") (rustToNixType' innerType)
-                } with a fixed-size of ${size} elements";
-              }
+              lib.types.ronArrayOf (rustToNixType' innerType) (builtins.fromJSON size)
             else
               null;
           handleTuple =
