@@ -51,6 +51,9 @@
                 ]) > 0;
               enabled = if isBuiltin then anySettingsSet else cfg.enable;
             in
+            assert lib.assertMsg (
+              isBuiltin -> hasSettings
+            ) "Applet module must have settings if it is a built-in applet.";
             lib.mkIf enabled (
               lib.mkMerge [
                 {
