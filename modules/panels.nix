@@ -86,7 +86,7 @@ in
                 "Dark"
                 "Light"
                 "ThemeDefault"
-              ]) (ronTupleEnumOf (listOf float) [ "Color" ]);
+              ]) (ronTupleEnumOf (ronArrayOf float 3) [ "Color" ]);
             example = {
               __type = "enum";
               variant = "Dark";
