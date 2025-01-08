@@ -31,14 +31,17 @@
       ) [ ] (builtins.readDir appletsByName);
   };
 
-  options.wayland.desktopManager.cosmic.enable =
-    lib.mkEnableOption "COSMIC Desktop declarative configuration"
-    // {
-      description = ''
-        Whether to enable declarative configuration management for the COSMIC Desktop environment.
+  options.wayland.desktopManager.cosmic.enable = lib.mkEnableOption "" // {
+    description = ''
+      Whether to enable declarative configuration management for the COSMIC Desktop environment.
 
-        When enabled, this module allows you to manage your COSMIC Desktop settings through
-        `home-manager`.
-      '';
-    };
+      When enabled, this module allows you to manage your COSMIC Desktop settings through
+      `home-manager`.
+    '';
+  };
+
+  config = {
+    _module.args.cosmicLib = lib.mkDefault (import ../lib/extend-lib.nix { inherit config lib pkgs; });
+    lib.cosmic = lib.mkDefault config._module.args.cosmicLib.cosmic;
+  };
 }
