@@ -171,4 +171,49 @@
         .${type} or (throw "lib.cosmic.generators.toRON: ${type} is not supported.");
     in
     toRON';
+
+  ron =
+    type: value:
+    {
+      char = {
+        __type = "char";
+        inherit value;
+      };
+      enum =
+        if builtins.isAttrs value then
+          if
+            builtins.attrNames value == [
+              "value"
+              "variant"
+            ]
+          then
+            {
+              __type = "enum";
+              inherit (value) value variant;
+            }
+          else
+            throw "lib.cosmic.ron: enum type must receive a string or an attribute set with value and variant keys value"
+        else
+          {
+            __type = "enum";
+            inherit value;
+          };
+      map = {
+        __type = "map";
+        inherit value;
+      };
+      optional = {
+        __type = "optional";
+        inherit value;
+      };
+      raw = {
+        __type = "raw";
+        inherit value;
+      };
+      tuple = {
+        __type = "tuple";
+        inherit value;
+      };
+    }
+    .${type} or (throw "lib.cosmic.ron: ${type} is not supported.");
 }
