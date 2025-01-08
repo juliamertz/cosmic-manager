@@ -141,23 +141,23 @@ lib.cosmic.applications.mkCosmicApplication {
     };
   };
 
-  # settingsExample = {
-  #   app_theme = {
-  #     __type = "enum";
-  #     variant = "Dark";
-  #   };
-  #   bold_font_weight = 700;
-  #   dim_font_weight = 300;
-  #   focus_follows_mouse = true;
-  #   font_name = "JetBrains Mono";
-  #   font_size = 12;
-  #   font_size_zoom_step_mul_100 = 100;
-  #   font_stretch = 100;
-  #   font_weight = 400;
-  #   opacity = 100;
-  #   show_headerbar = true;
-  #   use_bright_bold = true;
-  # };
+  settingsExample = {
+    app_theme = {
+      __type = "enum";
+      variant = "Dark";
+    };
+    bold_font_weight = 700;
+    dim_font_weight = 300;
+    focus_follows_mouse = true;
+    font_name = "JetBrains Mono";
+    font_size = 12;
+    font_size_zoom_step_mul_100 = 100;
+    font_stretch = 100;
+    font_weight = 400;
+    opacity = 100;
+    show_headerbar = true;
+    use_bright_bold = true;
+  };
 
   extraOptions = {
     profiles =
