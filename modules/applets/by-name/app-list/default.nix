@@ -1,6 +1,6 @@
 { lib, ... }:
 let
-  inherit (lib.cosmic.options) mkNullOrOption;
+  inherit (lib.cosmic.options) mkNullOrOption';
 in
 lib.cosmic.applets.mkCosmicApplet {
   name = "app-list";
@@ -11,7 +11,7 @@ lib.cosmic.applets.mkCosmicApplet {
   maintainers = [ lib.maintainers.HeitorAugustoLN ];
 
   settingsOptions = {
-    enable_drag_source = mkNullOrOption {
+    enable_drag_source = mkNullOrOption' {
       type = lib.types.bool;
       example = true;
       description = ''
@@ -19,7 +19,7 @@ lib.cosmic.applets.mkCosmicApplet {
       '';
     };
 
-    favorites = mkNullOrOption {
+    favorites = mkNullOrOption' {
       type = with lib.types; listOf str;
       example = [
         "firefox"
@@ -33,7 +33,7 @@ lib.cosmic.applets.mkCosmicApplet {
       '';
     };
 
-    filter_top_levels = mkNullOrOption {
+    filter_top_levels = mkNullOrOption' {
       type =
         with lib.types;
         ronOptionalOf (ronEnum [

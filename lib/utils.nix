@@ -126,4 +126,9 @@
           .${lib.trim type} or (throw "Unsupported type: ${type}");
     in
     rustToNixType';
+
+  nestedLiteral = val: {
+    __pretty = lib.getAttr "text";
+    val = if val._type or null == "literalExpression" then val else lib.literalExpression val;
+  };
 }

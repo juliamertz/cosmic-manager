@@ -1,6 +1,10 @@
+# Heavily inspired by nixvim
 { lib, ... }:
-{
-  mkNullOrOption =
+let
+  inherit (lib.cosmic.utils) nestedLiteral;
+in
+rec {
+  mkNullOrOption' =
     {
       type,
       default ? null,
@@ -13,6 +17,8 @@
         inherit default;
       }
     );
+
+  mkNullOrOption = type: description: mkNullOrOption' { inherit description type; };
 
   mkSettingsOption =
     {
@@ -33,49 +39,19 @@
           {
             foo = "bar";
             baz = 42;
-            optional = {
-              __type = "optional";
-              value = 3;
-            };
-            raw = {
-              __type = "raw";
-              value = "RawValue";
-            };
-            char = {
-              __type = "char";
-              value = "c";
-            };
-            map = {
-              __type = "map";
-              value = [
-                {
-                  key = "key";
-                  value = "value";
-                }
-              ];
-            };
-            tuple = {
-              __type = "tuple";
-              value = [
-                "a"
-                1
-              ];
-            };
+            optional = nestedLiteral ''cosmicLib.cosmic.ron "optional" 3'';
+            raw = nestedLiteral ''cosmicLib.cosmic.ron "raw" "RawValue"'';
+            char = nestedLiteral ''cosmicLib.cosmic.ron "char" "c"'';
+            map = nestedLiteral ''cosmicLib.cosmic.ron "map" [ { key = "key"; value = "value"; } ]'';
+            tuple = nestedLiteral ''cosmicLib.cosmic.ron "tuple" [ "a" 1 ]'';
             namedStruct = {
               __name = "NamedStruct";
               value = {
                 key = "value";
               };
             };
-            enum = {
-              __type = "enum";
-              variant = "ActiveWorkspace";
-            };
-            tupleEnum = {
-              __type = "enum";
-              variant = "TupleEnum";
-              value = [ "foobar" ];
-            };
+            enum = nestedLiteral ''cosmicLib.cosmic.ron "enum" "ActiveWorkspace"'';
+            tupleEnum = nestedLiteral ''cosmicLib.cosmic.ron "enum" { variant = "TupleEnum"; value = [ "foobar" ]; }'';
           }
         else
           example;

@@ -1,6 +1,6 @@
 { lib, ... }:
 let
-  inherit (lib.cosmic.options) mkNullOrOption;
+  inherit (lib.cosmic.options) mkNullOrOption';
 in
 lib.cosmic.applications.mkCosmicApplication {
   name = "cosmic-term";
@@ -12,7 +12,7 @@ lib.cosmic.applications.mkCosmicApplication {
   maintainers = [ lib.maintainers.HeitorAugustoLN ];
 
   settingsOptions = {
-    app_theme = mkNullOrOption {
+    app_theme = mkNullOrOption' {
       type = lib.types.ronEnum [
         "Dark"
         "Light"
@@ -31,7 +31,7 @@ lib.cosmic.applications.mkCosmicApplication {
       '';
     };
 
-    bold_font_weight = mkNullOrOption {
+    bold_font_weight = mkNullOrOption' {
       type = lib.types.ints.u16;
       example = 700;
       description = ''
@@ -39,7 +39,7 @@ lib.cosmic.applications.mkCosmicApplication {
       '';
     };
 
-    dim_font_weight = mkNullOrOption {
+    dim_font_weight = mkNullOrOption' {
       type = lib.types.ints.u16;
       example = 300;
       description = ''
@@ -47,7 +47,7 @@ lib.cosmic.applications.mkCosmicApplication {
       '';
     };
 
-    focus_follows_mouse = mkNullOrOption {
+    focus_follows_mouse = mkNullOrOption' {
       type = lib.types.bool;
       example = true;
       description = ''
@@ -58,7 +58,7 @@ lib.cosmic.applications.mkCosmicApplication {
       '';
     };
 
-    font_name = mkNullOrOption {
+    font_name = mkNullOrOption' {
       type = lib.types.str;
       example = "JetBrains Mono";
       description = ''
@@ -66,7 +66,7 @@ lib.cosmic.applications.mkCosmicApplication {
       '';
     };
 
-    font_size = mkNullOrOption {
+    font_size = mkNullOrOption' {
       type = lib.types.ints.u16;
       example = 12;
       description = ''
@@ -74,7 +74,7 @@ lib.cosmic.applications.mkCosmicApplication {
       '';
     };
 
-    font_size_zoom_step_mul_100 = mkNullOrOption {
+    font_size_zoom_step_mul_100 = mkNullOrOption' {
       type = lib.types.ints.u16;
       example = 100;
       description = ''
@@ -84,7 +84,7 @@ lib.cosmic.applications.mkCosmicApplication {
       '';
     };
 
-    font_stretch = mkNullOrOption {
+    font_stretch = mkNullOrOption' {
       type = lib.types.ints.u16;
       example = 100;
       description = ''
@@ -92,7 +92,7 @@ lib.cosmic.applications.mkCosmicApplication {
       '';
     };
 
-    font_weight = mkNullOrOption {
+    font_weight = mkNullOrOption' {
       type = lib.types.ints.u16;
       example = 400;
       description = ''
@@ -100,7 +100,7 @@ lib.cosmic.applications.mkCosmicApplication {
       '';
     };
 
-    opacity = mkNullOrOption {
+    opacity = mkNullOrOption' {
       type = lib.types.ints.between 0 100;
       example = 100;
       description = ''
@@ -108,7 +108,7 @@ lib.cosmic.applications.mkCosmicApplication {
       '';
     };
 
-    show_headerbar = mkNullOrOption {
+    show_headerbar = mkNullOrOption' {
       type = lib.types.bool;
       example = true;
       description = ''
@@ -116,7 +116,7 @@ lib.cosmic.applications.mkCosmicApplication {
       '';
     };
 
-    syntax_theme_dark = mkNullOrOption {
+    syntax_theme_dark = mkNullOrOption' {
       type = lib.types.str;
       example = "COSMIC Dark";
       description = ''
@@ -124,7 +124,7 @@ lib.cosmic.applications.mkCosmicApplication {
       '';
     };
 
-    syntax_theme_light = mkNullOrOption {
+    syntax_theme_light = mkNullOrOption' {
       type = lib.types.str;
       example = "COSMIC Light";
       description = ''
@@ -132,7 +132,7 @@ lib.cosmic.applications.mkCosmicApplication {
       '';
     };
 
-    use_bright_bold = mkNullOrOption {
+    use_bright_bold = mkNullOrOption' {
       type = lib.types.bool;
       example = true;
       description = ''
@@ -141,23 +141,23 @@ lib.cosmic.applications.mkCosmicApplication {
     };
   };
 
-  settingsExample = {
-    app_theme = {
-      __type = "enum";
-      variant = "Dark";
-    };
-    bold_font_weight = 700;
-    dim_font_weight = 300;
-    focus_follows_mouse = true;
-    font_name = "JetBrains Mono";
-    font_size = 12;
-    font_size_zoom_step_mul_100 = 100;
-    font_stretch = 100;
-    font_weight = 400;
-    opacity = 100;
-    show_headerbar = true;
-    use_bright_bold = true;
-  };
+  # settingsExample = {
+  #   app_theme = {
+  #     __type = "enum";
+  #     variant = "Dark";
+  #   };
+  #   bold_font_weight = 700;
+  #   dim_font_weight = 300;
+  #   focus_follows_mouse = true;
+  #   font_name = "JetBrains Mono";
+  #   font_size = 12;
+  #   font_size_zoom_step_mul_100 = 100;
+  #   font_stretch = 100;
+  #   font_weight = 400;
+  #   opacity = 100;
+  #   show_headerbar = true;
+  #   use_bright_bold = true;
+  # };
 
   extraOptions = {
     profiles =
@@ -165,7 +165,7 @@ lib.cosmic.applications.mkCosmicApplication {
         profileSubmodule = lib.types.submodule {
           freeformType = with lib.types; attrsOf cosmicEntryValue;
           options = {
-            command = mkNullOrOption {
+            command = mkNullOrOption' {
               type = lib.types.str;
               description = ''
                 The shell or program to execute when opening a new terminal instance with this profile.
@@ -210,7 +210,7 @@ lib.cosmic.applications.mkCosmicApplication {
               '';
               example = "COSMIC Light";
             };
-            tab_title = mkNullOrOption {
+            tab_title = mkNullOrOption' {
               type = lib.types.str;
               description = ''
                 Overrides the title of the terminal tab.
@@ -219,7 +219,7 @@ lib.cosmic.applications.mkCosmicApplication {
               example = "Default";
               apply = toString;
             };
-            working_directory = mkNullOrOption {
+            working_directory = mkNullOrOption' {
               type = lib.types.str;
               description = ''
                 The working directory to use when opening a new terminal instance with this profile.
@@ -231,7 +231,7 @@ lib.cosmic.applications.mkCosmicApplication {
           };
         };
       in
-      mkNullOrOption {
+      mkNullOrOption' {
         type = with lib.types; listOf profileSubmodule;
         example = [
           {
@@ -404,7 +404,7 @@ lib.cosmic.applications.mkCosmicApplication {
           };
         };
       in
-      mkNullOrOption {
+      mkNullOrOption' {
         type = lib.types.listOf colorSchemeSubmodule;
         example = [
           {

@@ -1,6 +1,6 @@
 { lib, ... }:
 let
-  inherit (lib.cosmic.options) mkNullOrOption;
+  inherit (lib.cosmic.options) mkNullOrOption';
 in
 lib.cosmic.applets.mkCosmicApplet {
   name = "time";
@@ -11,7 +11,7 @@ lib.cosmic.applets.mkCosmicApplet {
   maintainers = [ lib.maintainers.HeitorAugustoLN ];
 
   settingsOptions = {
-    first_day_of_week = mkNullOrOption {
+    first_day_of_week = mkNullOrOption' {
       type = lib.types.ints.u8;
       example = 6;
       description = ''
@@ -21,7 +21,7 @@ lib.cosmic.applets.mkCosmicApplet {
       '';
     };
 
-    military_time = mkNullOrOption {
+    military_time = mkNullOrOption' {
       type = lib.types.bool;
       example = false;
       description = ''
@@ -29,7 +29,7 @@ lib.cosmic.applets.mkCosmicApplet {
       '';
     };
 
-    show_date_in_top_panel = mkNullOrOption {
+    show_date_in_top_panel = mkNullOrOption' {
       type = lib.types.bool;
       example = true;
       description = ''
@@ -37,7 +37,7 @@ lib.cosmic.applets.mkCosmicApplet {
       '';
     };
 
-    show_seconds = mkNullOrOption {
+    show_seconds = mkNullOrOption' {
       type = lib.types.bool;
       example = false;
       description = ''
@@ -45,7 +45,7 @@ lib.cosmic.applets.mkCosmicApplet {
       '';
     };
 
-    show_weekday = mkNullOrOption {
+    show_weekday = mkNullOrOption' {
       type = lib.types.bool;
       example = true;
       description = ''

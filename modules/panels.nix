@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  inherit (lib.cosmic.options) mkNullOrOption;
+  inherit (lib.cosmic.options) mkNullOrOption';
 
   cfg = config.wayland.desktopManager.cosmic;
 in
@@ -10,7 +10,7 @@ in
       panelSubmodule = lib.types.submodule {
         freeformType = with lib.types; attrsOf cosmicEntryValue;
         options = {
-          anchor = mkNullOrOption {
+          anchor = mkNullOrOption' {
             type = lib.types.ronEnum [
               "Bottom"
               "Left"
@@ -25,19 +25,19 @@ in
               The position of the panel on the screen.
             '';
           };
-          anchor_gap = mkNullOrOption {
+          anchor_gap = mkNullOrOption' {
             type = lib.types.bool;
             example = true;
             description = ''
               Whether there should be a gap between the panel and the screen edge.
             '';
           };
-          autohide = mkNullOrOption {
+          autohide = mkNullOrOption' {
             type = lib.types.ronOptionalOf (
               lib.types.submodule {
                 freeformType = with lib.types; attrsOf cosmicEntryValue;
                 options = {
-                  handle_size = mkNullOrOption {
+                  handle_size = mkNullOrOption' {
                     type =
                       with lib.types;
                       (addCheck lib.types.ints.u32 (x: x > 0))
@@ -79,7 +79,7 @@ in
               If set the `value` is set to `null`, the panel will not autohide.
             '';
           };
-          background = mkNullOrOption {
+          background = mkNullOrOption' {
             type =
               with lib.types;
               either (ronEnum [
@@ -95,7 +95,7 @@ in
               The appearance of the panel.
             '';
           };
-          expand_to_edges = mkNullOrOption {
+          expand_to_edges = mkNullOrOption' {
             type = lib.types.bool;
             example = true;
             description = ''
@@ -109,14 +109,14 @@ in
               The name of the panel.
             '';
           };
-          opacity = mkNullOrOption {
+          opacity = mkNullOrOption' {
             type = lib.types.numbers.between 0 1;
             example = 1.0;
             description = ''
               The opacity of the panel.
             '';
           };
-          output = mkNullOrOption {
+          output = mkNullOrOption' {
             type =
               with lib.types;
               either (ronEnum [
@@ -132,7 +132,7 @@ in
               The output(s) the panel should be displayed on.
             '';
           };
-          plugins_center = mkNullOrOption {
+          plugins_center = mkNullOrOption' {
             type = with lib.types; ronOptionalOf (listOf str);
             example = {
               __type = "optional";
@@ -142,7 +142,7 @@ in
               The center plugins of the panel.
             '';
           };
-          plugins_wings = mkNullOrOption {
+          plugins_wings = mkNullOrOption' {
             type = with lib.types; ronOptionalOf (ronTupleOf (listOf str));
             example = {
               __type = "optional";
@@ -172,7 +172,7 @@ in
               The plugins that will be displayed on the right and left sides of the panel, respectively.
             '';
           };
-          size = mkNullOrOption {
+          size = mkNullOrOption' {
             type = lib.types.ronEnum [
               "XS"
               "S"
@@ -191,7 +191,7 @@ in
         };
       };
     in
-    mkNullOrOption {
+    mkNullOrOption' {
       type = lib.types.listOf panelSubmodule;
       example = [
         {

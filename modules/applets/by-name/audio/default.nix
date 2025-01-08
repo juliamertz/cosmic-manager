@@ -1,6 +1,6 @@
 { lib, ... }:
 let
-  inherit (lib.cosmic.options) mkNullOrOption;
+  inherit (lib.cosmic.options) mkNullOrOption';
 in
 lib.cosmic.applets.mkCosmicApplet {
   name = "audio";
@@ -11,7 +11,7 @@ lib.cosmic.applets.mkCosmicApplet {
   maintainers = [ lib.maintainers.HeitorAugustoLN ];
 
   settingsOptions = {
-    show_media_controls_in_top_panel = mkNullOrOption {
+    show_media_controls_in_top_panel = mkNullOrOption' {
       type = lib.types.bool;
       example = true;
       description = ''

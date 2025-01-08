@@ -2,7 +2,7 @@
 let
   cfg = config.wayland.desktopManager.cosmic;
 
-  inherit (lib.cosmic.options) mkNullOrOption;
+  inherit (lib.cosmic.options) mkNullOrOption';
   inherit (lib.cosmic.utils) capitalizeWord rustToNixType;
 in
 {
@@ -26,7 +26,7 @@ in
         in
         lib.types.submodule {
           options = {
-            description = mkNullOrOption {
+            description = mkNullOrOption' {
               type = with lib.types; ronOptionalOf str;
               example = {
                 __type = "optional";
@@ -78,7 +78,7 @@ in
           };
         };
     in
-    mkNullOrOption {
+    mkNullOrOption' {
       type = lib.types.listOf shortcutSubmodule;
       example = [
         {
