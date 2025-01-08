@@ -1,9 +1,12 @@
 # Heavily inspired by nixvim
 { lib, ... }:
 let
-  inherit (lib.cosmic.utils) nestedLiteral;
+  inherit (lib.cosmic) nestedLiteral nestedLiteralRon;
 in
 {
+  mkNullOrOption =
+    type: description: lib.cosmic.options.mkNullOrOption' { inherit description type; };
+
   mkNullOrOption' =
     {
       type,
@@ -17,9 +20,6 @@ in
         inherit default;
       }
     );
-
-  mkNullOrOption =
-    type: description: lib.cosmic.options.mkNullOrOption' { inherit description type; };
 
   mkSettingsOption =
     {
@@ -40,19 +40,19 @@ in
           {
             foo = "bar";
             baz = 42;
-            optional = nestedLiteral ''cosmicLib.cosmic.ron "optional" 3'';
-            raw = nestedLiteral ''cosmicLib.cosmic.ron "raw" "RawValue"'';
-            char = nestedLiteral ''cosmicLib.cosmic.ron "char" "c"'';
-            map = nestedLiteral ''cosmicLib.cosmic.ron "map" [ { key = "key"; value = "value"; } ]'';
-            tuple = nestedLiteral ''cosmicLib.cosmic.ron "tuple" [ "a" 1 ]'';
+            optional = nestedLiteral ''cosmicLib.cosmic.mkRon "optional" 3'';
+            raw = nestedLiteralRon "RawValue";
+            char = nestedLiteral ''cosmicLib.cosmic.mkRon "char" "c"'';
+            map = nestedLiteral ''cosmicLib.cosmic.mkRon "map" [ { key = "key"; value = "value"; } ]'';
+            tuple = nestedLiteral ''cosmicLib.cosmic.mkRon "tuple" [ "a" 1 ]'';
             namedStruct = {
               __name = "NamedStruct";
               value = {
                 key = "value";
               };
             };
-            enum = nestedLiteral ''cosmicLib.cosmic.ron "enum" "ActiveWorkspace"'';
-            tupleEnum = nestedLiteral ''cosmicLib.cosmic.ron "enum" { variant = "TupleEnum"; value = [ "foobar" ]; }'';
+            enum = nestedLiteral ''cosmicLib.cosmic.mkRon "enum" "ActiveWorkspace"'';
+            tupleEnum = nestedLiteral ''cosmicLib.cosmic.mkRon "enum" { variant = "TupleEnum"; value = [ "foobar" ]; }'';
           }
         else
           example;

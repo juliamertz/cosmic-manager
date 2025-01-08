@@ -4,9 +4,9 @@
     let
       cleanNullsExceptOptional' =
         attrset:
-        lib.filterAttrs (_name: value: value != null) (
+        lib.filterAttrs (_: value: value != null) (
           builtins.mapAttrs (
-            _name: value:
+            _: value:
             if
               builtins.isAttrs value && !(value ? __type && value.__type == "optional" && value.value == null)
             then
@@ -24,6 +24,66 @@
     concatImapStrings (index: char: if index == 1 then toUpper char else toLower char) (
       stringToCharacters word
     );
+
+  literalRon =
+    r:
+    let
+      raw = lib.cosmic.mkRon "raw" r;
+      expression = ''cosmicLib.cosmic.mkRon "raw" ${builtins.toJSON raw.value}'';
+    in
+    lib.literalExpression expression;
+
+  mkRon =
+    type: value:
+    {
+      char = {
+        __type = "char";
+        inherit value;
+      };
+      enum =
+        if builtins.isAttrs value then
+          if
+            builtins.attrNames value == [
+              "value"
+              "variant"
+            ]
+          then
+            {
+              __type = "enum";
+              inherit (value) value variant;
+            }
+          else
+            throw "lib.cosmic.ron: enum type must receive a string or an attribute set with value and variant keys value"
+        else
+          {
+            __type = "enum";
+            inherit value;
+          };
+      map = {
+        __type = "map";
+        inherit value;
+      };
+      optional = {
+        __type = "optional";
+        inherit value;
+      };
+      raw = {
+        __type = "raw";
+        inherit value;
+      };
+      tuple = {
+        __type = "tuple";
+        inherit value;
+      };
+    }
+    .${type} or (throw "lib.cosmic.ron: ${type} is not supported.");
+
+  nestedLiteral = val: {
+    __pretty = lib.getAttr "text";
+    val = if val._type or null == "literalExpression" then val else lib.literalExpression val;
+  };
+
+  nestedLiteralRon = r: with lib.cosmic.utils; nestedLiteral (literalRon r);
 
   rustToNixType =
     let
@@ -126,9 +186,4 @@
           .${lib.trim type} or (throw "Unsupported type: ${type}");
     in
     rustToNixType';
-
-  nestedLiteral = val: {
-    __pretty = lib.getAttr "text";
-    val = if val._type or null == "literalExpression" then val else lib.literalExpression val;
-  };
 }
