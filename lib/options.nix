@@ -3,7 +3,7 @@
 let
   inherit (lib.cosmic.utils) nestedLiteral;
 in
-rec {
+{
   mkNullOrOption' =
     {
       type,
@@ -18,7 +18,8 @@ rec {
       }
     );
 
-  mkNullOrOption = type: description: mkNullOrOption' { inherit description type; };
+  mkNullOrOption =
+    type: description: lib.cosmic.options.mkNullOrOption' { inherit description type; };
 
   mkSettingsOption =
     {

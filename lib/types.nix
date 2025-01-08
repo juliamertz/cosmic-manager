@@ -46,6 +46,22 @@
     description = "hex color";
   };
 
+  maybeRonRaw =
+    elemType:
+    let
+      ronFirst = with lib.types; either rawRon elemType;
+      elemFirst = with lib.types; either elemType rawRon;
+    in
+    ronFirst
+    // {
+      name = "maybeRonRaw";
+      inherit (elemFirst) description;
+      nestedTypes = {
+        inherit (lib.types) rawRon;
+        inherit elemType;
+      };
+    };
+
   rawRon = lib.mkOptionType {
     check =
       value:
