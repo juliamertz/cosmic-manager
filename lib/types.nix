@@ -282,31 +282,34 @@
       builtins.isAttrs value
       &&
         [
-          "__name"
+          "__type"
+          "name"
           "value"
         ] == keys
-      && builtins.isString value.__name
+      && value.__type == "namedStruct"
+      && builtins.isString value.name
       && builtins.isAttrs value.value;
     description = "RON named struct";
     descriptionClass = "noun";
     merge = loc: defs: {
-      __name =
+      __type = "namedStruct";
+      name =
         if builtins.length defs == 0 then
           abort "This case should not happen."
         else if builtins.length defs == 1 then
-          (builtins.head defs).value.__name
+          (builtins.head defs).value.name
         else
           builtins.foldl' (
             first: def:
-            if def.value.__name != first.value.__name then
+            if def.value.name != first.value.name then
               throw "The option '${lib.showOption loc}' has conflicting definition values: ${
                 lib.options.showDefs [
                   first
                   def
                 ]
-              }\nUse `lib.mkForce value` or `lib.mkDefault value` to change the priority on any of these definitions."
+              }"
             else
-              first.value.__name
+              first.value.name
           ) (builtins.head defs) (builtins.tail defs);
       value = builtins.foldl' (first: def: lib.recursiveUpdate first def.value.value) { } defs;
     };
@@ -329,10 +332,12 @@
             builtins.isAttrs value
             &&
               [
-                "__name"
+                "__type"
+                "name"
                 "value"
               ] == keys
-            && builtins.isString value.__name
+            && value.__type == "namedStruct"
+            && builtins.isString value.name
             && builtins.isAttrs value.value;
           description = "RON named struct of ${
             lib.types.optionDescriptionPhrase (class: class == "noun" || class == "composite") elemType
@@ -355,23 +360,24 @@
               );
             in
             {
-              __name =
+              __type = "namedStruct";
+              name =
                 if builtins.length defs == 0 then
                   abort "This case should not happen."
                 else if builtins.length defs == 1 then
-                  (builtins.head defs).value.__name
+                  (builtins.head defs).value.name
                 else
                   builtins.foldl' (
                     first: def:
-                    if def.value.__name != first.value.__name then
+                    if def.value.name != first.value.name then
                       throw "The option '${lib.showOption loc}' has conflicting definition values: ${
                         lib.options.showDefs [
                           first
                           def
                         ]
-                      }\nUse `lib.mkForce value` or `lib.mkDefault value` to change the priority on any of these definitions."
+                      }"
                     else
-                      first.value.__name
+                      first.value.name
                   ) (builtins.head defs) (builtins.tail defs);
               value = builtins.mapAttrs (_n: v: v.value) (
                 lib.filterAttrs (_n: v: v ? value) (

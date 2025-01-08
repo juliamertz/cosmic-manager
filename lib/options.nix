@@ -40,17 +40,23 @@ in
           {
             foo = "bar";
             baz = 42;
+            bool = true;
+            float = 1.0;
+            list = [
+              "a"
+              "b"
+              "c"
+            ];
+            set = {
+              a = "b";
+              c = "d";
+            };
             optional = nestedLiteral ''cosmicLib.cosmic.mkRon "optional" 3'';
             raw = nestedLiteralRon "RawValue";
             char = nestedLiteral ''cosmicLib.cosmic.mkRon "char" "c"'';
             map = nestedLiteral ''cosmicLib.cosmic.mkRon "map" [ { key = "key"; value = "value"; } ]'';
             tuple = nestedLiteral ''cosmicLib.cosmic.mkRon "tuple" [ "a" 1 ]'';
-            namedStruct = {
-              __name = "NamedStruct";
-              value = {
-                key = "value";
-              };
-            };
+            namedStruct = nestedLiteral ''cosmicLib.cosmic.mkRon "namedStruct" { name = "NamedStruct"; value = { key = "value"; }; }'';
             enum = nestedLiteral ''cosmicLib.cosmic.mkRon "enum" "ActiveWorkspace"'';
             tupleEnum = nestedLiteral ''cosmicLib.cosmic.mkRon "enum" { variant = "TupleEnum"; value = [ "foobar" ]; }'';
           }

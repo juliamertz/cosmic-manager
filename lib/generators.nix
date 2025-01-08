@@ -148,22 +148,50 @@
                     throw "lib.cosmic.generators.toRON: tuple type must have a list of values."
                 else
                   throw "lib.cosmic.generators.toRON: tuple type must have a value."
+              else if value.__type == "namedStruct" then
+                if value ? name then
+                  if builtins.isString value.name then
+                    if value ? value then
+                      if builtins.isAttrs value.value then
+                        let
+                          keys = builtins.attrNames value.value;
+                          count = builtins.length keys;
+                        in
+                        if count == 0 then
+                          "${value.name}()"
+                        else
+                          "${value.name}(\n${
+                            lib.concatImapStringsSep "\n" (
+                              index: key:
+                              "${indent nextIndent}${key}: ${toRON' nextIndent value.value.${key}}${
+                                lib.optionalString (index != count) ","
+                              }"
+                            ) keys
+                          },\n${indent startIndent})"
+                      else
+                        throw "lib.cosmic.generators.toRON: namedStruct type value must be a attribute set."
+                    else
+                      throw "lib.cosmic.generators.toRON: namedStruct type must have a value."
+                  else
+                    throw "lib.cosmic.generators.toRON: namedStruct type name must be a string."
+                else
+                  throw "lib.cosmic.generators.toRON: namedStruct type must have a name."
               else
-                throw "lib.cosmic.generators.toRON: set type ${value.__type} is not supported."
+                throw "lib.cosmic.generators.toRON: set type ${toString value.__type} is not supported."
             else
               let
-                keys = builtins.attrNames (if value ? __name then value.value else value);
+                keys = builtins.attrNames value;
                 count = builtins.length keys;
               in
               if count == 0 then
                 "()"
               else
-                "${lib.optionalString (value ? __name) value.__name}(\n${
+                "(\n${
                   lib.concatImapStringsSep "\n" (
                     index: key:
-                    "${indent nextIndent}${key}: ${
-                      toRON' nextIndent (builtins.getAttr key (if value ? __name then value.value else value))
-                    }${lib.optionalString (index != count) ","}"
+                    "${indent nextIndent}${key}: ${toRON' nextIndent value.${key}}${
+                      lib.optionalString (index != count) ","
+                    }"
                   ) keys
                 },\n${indent startIndent})";
           string = lib.strings.escapeNixString value;

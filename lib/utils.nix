@@ -63,6 +63,22 @@
         __type = "map";
         inherit value;
       };
+      namedStruct =
+        if builtins.isAttrs value then
+          if
+            builtins.attrNames value == [
+              "name"
+              "value"
+            ]
+          then
+            {
+              __type = "namedStruct";
+              inherit (value) name value;
+            }
+          else
+            throw "lib.cosmic.ron: namedStruct type must receive a attribute set with name and value keys."
+        else
+          throw "lib.cosmic.ron: namedStruct type must receive an attribute set as value.";
       optional = {
         __type = "optional";
         inherit value;
