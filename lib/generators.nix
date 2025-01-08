@@ -88,8 +88,10 @@
                         },\n${indent startIndent})"
                     else
                       throw "lib.cosmic.generators.toRON: enum type must have a list of values."
+                  else if builtins.isString value.variant then
+                    value.variant
                   else
-                    toString value.variant
+                    throw "lib.cosmic.generators.toRON: enum type variant must be a string value."
                 else
                   throw "lib.cosmic.generators.toRON: enum type must have a variant."
               else if value.__type == "map" then
