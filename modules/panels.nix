@@ -89,7 +89,7 @@ in
           '';
 
           name = lib.mkOption {
-            types = with lib.types; maybeRonRaw str;
+            type = with lib.types; maybeRonRaw str;
             example = "Panel";
             description = ''
               The name of the panel.
