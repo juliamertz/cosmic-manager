@@ -291,28 +291,7 @@
       && builtins.isAttrs value.value;
     description = "RON named struct";
     descriptionClass = "noun";
-    merge = loc: defs: {
-      __type = "namedStruct";
-      name =
-        if builtins.length defs == 0 then
-          abort "This case should not happen."
-        else if builtins.length defs == 1 then
-          (builtins.head defs).value.name
-        else
-          builtins.foldl' (
-            first: def:
-            if def.value.name != first.value.name then
-              throw "The option '${lib.showOption loc}' has conflicting definition values: ${
-                lib.options.showDefs [
-                  first
-                  def
-                ]
-              }"
-            else
-              first.value.name
-          ) (builtins.head defs) (builtins.tail defs);
-      value = builtins.foldl' (first: def: lib.recursiveUpdate first def.value.value) { } defs;
-    };
+    merge = lib.options.mergeEqualOption;
     name = "ronNamedStruct";
   };
 
