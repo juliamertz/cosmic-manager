@@ -30,20 +30,22 @@ in
                   handle_size = lib.mkOption {
                     type =
                       with lib.types;
-                      addCheck ints.u32 (x: x > 0)
-                      // {
-                        description = "32-bit unsigned integer; must be greater than 0";
-                      };
+                      maybeRonRaw (
+                        addCheck ints.u32 (x: x > 0)
+                        // {
+                          description = "32-bit unsigned integer; must be greater than 0";
+                        }
+                      );
                   };
                   transition_time = lib.mkOption {
-                    type = lib.types.ints.u32;
+                    type = with lib.types; maybeRonRaw ints.u32;
                     example = 200;
                     description = ''
                       The time in milliseconds it should take to transition the panel hiding.
                     '';
                   };
                   wait_time = lib.mkOption {
-                    type = lib.types.ints.u32;
+                    type = with lib.types; maybeRonRaw ints.u32;
                     example = 1000;
                     description = ''
                       The time in milliseconds without pointer focus before the panel hides.
@@ -87,7 +89,7 @@ in
           '';
 
           name = lib.mkOption {
-            type = lib.types.str;
+            types = with lib.types; maybeRonRaw str;
             example = "Panel";
             description = ''
               The name of the panel.
