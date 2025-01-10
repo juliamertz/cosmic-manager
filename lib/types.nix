@@ -456,8 +456,7 @@ in
                 The deprecated `type.functor.wrapped` attribute of the option `${lib.showOption loc}` is accessed, use `type.nestedTypes.elemType` instead.
               '' elemType;
           };
-          inherit (elemType) getSubModules;
-          getSubOptions = elemType.getSubOptions;
+          inherit (elemType) getSubModules getSubOptions;
           merge = loc: defs: {
             __type = "optional";
             value =
