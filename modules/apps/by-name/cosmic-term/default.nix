@@ -85,7 +85,7 @@ lib.cosmic.applications.mkCosmicApplication {
   };
 
   settingsExample = {
-    app_theme = nestedRonExpression "enum" "Dark";
+    app_theme = nestedRonExpression "enum" "Dark" "";
     bold_font_weight = 700;
     dim_font_weight = 300;
     focus_follows_mouse = true;
