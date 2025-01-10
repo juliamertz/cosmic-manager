@@ -1,5 +1,54 @@
 { lib, ... }:
-rec {
+let
+  isRonType =
+    v:
+    v ? __type
+    && (
+      v.__type == "char"
+      || v.__type == "enum"
+      || v.__type == "map"
+      || v.__type == "namedStruct"
+      || v.__type == "optional"
+      || v.__type == "raw"
+      || v.__type == "tuple"
+    )
+    && (v ? value || v ? variant || (v ? name && v ? value) || (v ? value && v ? variant));
+
+  literalRon =
+    r:
+    let
+      raw = lib.cosmic.mkRon "raw" r;
+      expression = ''cosmicLib.cosmic.mkRon "raw" ${builtins.toJSON raw.value}'';
+    in
+    lib.literalExpression expression;
+
+  nestedLiteral = val: {
+    __pretty = builtins.getAttr "text";
+    val = if val._type or null == "literalExpression" then val else lib.literalExpression val;
+  };
+
+  nestedRonExpression =
+    type: value: indent:
+    nestedLiteral (ronExpression type value indent);
+
+  ronExpression =
+    type: value: indent:
+    lib.literalExpression ''cosmicLib.cosmic.mkRon "${type}" ${
+      lib.generators.toPretty {
+        allowPrettyValues = true;
+        inherit indent;
+      } value
+    }'';
+in
+{
+  inherit
+    isRonType
+    literalRon
+    nestedLiteral
+    nestedRonExpression
+    ronExpression
+    ;
+
   cleanNullsExceptOptional =
     let
       cleanNullsExceptOptional' =
@@ -24,14 +73,6 @@ rec {
     concatImapStrings (index: char: if index == 1 then toUpper char else toLower char) (
       stringToCharacters word
     );
-
-  literalRon =
-    r:
-    let
-      raw = lib.cosmic.mkRon "raw" r;
-      expression = ''cosmicLib.cosmic.mkRon "raw" ${builtins.toJSON raw.value}'';
-    in
-    lib.literalExpression expression;
 
   mkRon =
     type: value:
@@ -94,36 +135,66 @@ rec {
     }
     .${type} or (throw "lib.cosmic.ron: ${type} is not supported.");
 
-  nestedLiteral = val: {
-    __pretty = lib.getAttr "text";
-    val = if val._type or null == "literalExpression" then val else lib.literalExpression val;
-  };
-
-  nestedLiteralRon = r: nestedLiteral (literalRon r);
-
-  nestedRonExpression = type: value: nestedLiteral (ronExpression type value);
-
-  ronExpression =
-    type: value: lib.literalExpression ''cosmicLib.cosmic.mkRon "${type}" ${ronStringify value}'';
-
-  ronStringify =
+  mkRonExpression =
     let
-      ronStringify' =
-        value:
+      mkRonExpression' =
+        startIndent: value: previousType:
         if builtins.isAttrs value then
           let
-            attrsList = builtins.attrNames value;
-            stringifyPair = key: "${key} = ${ronStringify' (value.${key})}";
+            nextIndent = if previousType != null then startIndent else startIndent + 1;
+
+            indent = level: lib.strings.replicate level "    ";
+
+            toRonExpression =
+              type: value:
+              if startIndent != 0 then
+                let
+                  v = nestedRonExpression type value (indent startIndent);
+                in
+                if previousType == null || previousType == "namedStruct" then
+                  v
+                else
+                  nestedLiteral "(${v.__pretty v.val})"
+              else
+                ronExpression type value (indent startIndent);
           in
-          "{ ${builtins.concatStringsSep "; " (map stringifyPair attrsList)} }"
-        else if builtins.isList value then
-          "[ ${builtins.concatStringsSep " " (map ronStringify' value)} ]"
-        else if builtins.isString value then
-          lib.strings.escapeNixString value
+          if isRonType value then
+            if value.__type == "enum" then
+              if value ? variant then
+                if value ? value then
+                  if isRonType value.value then
+                    toRonExpression "enum" {
+                      inherit (value) variant;
+                      value = mkRonExpression' nextIndent value.value "enum";
+                    }
+                  else
+                    toRonExpression "enum" { inherit (value) value variant; }
+                else
+                  toRonExpression "enum" value.variant
+              else
+                throw "lib.cosmic.mkRonExpression: enum type must have at least a variant key."
+            else if value.__type == "namedStruct" then
+              if value ? name && value ? value then
+                toRonExpression "namedStruct" {
+                  inherit (value) name;
+                  value = builtins.mapAttrs (
+                    _: v: if isRonType v then mkRonExpression' nextIndent v "namedStruct" else v
+                  ) value.value;
+                }
+              else
+                throw "lib.cosmic.mkRonExpression: namedStruct type must have name and value keys."
+            else if isRonType value.value then
+              toRonExpression value.__type (mkRonExpression' nextIndent value.value value.__type)
+            else
+              toRonExpression value.__type value.value
+          else
+            throw "lib.cosmic.mkRonExpression: value is not a valid Ron type."
         else
-          builtins.toJSON value;
+          throw "lib.cosmic.mkRonExpression: expected an attribute set, got a ${builtins.typeOf value}";
     in
-    ronStringify';
+    mkRonExpression';
+
+  nestedLiteralRon = r: nestedLiteral (literalRon r);
 
   rustToNixType =
     let
