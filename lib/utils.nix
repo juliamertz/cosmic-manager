@@ -1,5 +1,5 @@
 { lib, ... }:
-{
+rec {
   cleanNullsExceptOptional =
     let
       cleanNullsExceptOptional' =
@@ -99,7 +99,31 @@
     val = if val._type or null == "literalExpression" then val else lib.literalExpression val;
   };
 
-  nestedLiteralRon = r: with lib.cosmic.utils; nestedLiteral (literalRon r);
+  nestedLiteralRon = r: nestedLiteral (literalRon r);
+
+  nestedRonExpression = type: value: nestedLiteral (ronExpression type value);
+
+  ronExpression =
+    type: value: lib.literalExpression ''cosmicLib.cosmic.mkRon "${type}" ${ronStringify value}'';
+
+  ronStringify =
+    let
+      ronStringify' =
+        value:
+        if builtins.isAttrs value then
+          let
+            attrsList = builtins.attrNames value;
+            stringifyPair = key: "${key} = ${ronStringify' (value.${key})}";
+          in
+          "{ ${builtins.concatStringsSep "; " (map stringifyPair attrsList)} }"
+        else if builtins.isList value then
+          "[ ${builtins.concatStringsSep " " (map ronStringify' value)} ]"
+        else if builtins.isString value then
+          lib.strings.escapeNixString value
+        else
+          builtins.toJSON value;
+    in
+    ronStringify';
 
   rustToNixType =
     let
