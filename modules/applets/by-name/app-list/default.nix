@@ -1,6 +1,6 @@
 { lib, ... }:
 let
-  inherit (lib.cosmic.options) mkNullOrOption';
+  inherit (lib.cosmic) defaultNullOpts nestedLiteral;
 in
 lib.cosmic.applets.mkCosmicApplet {
   name = "app-list";
@@ -11,46 +11,39 @@ lib.cosmic.applets.mkCosmicApplet {
   maintainers = [ lib.maintainers.HeitorAugustoLN ];
 
   settingsOptions = {
-    enable_drag_source = mkNullOrOption' {
-      type = lib.types.bool;
-      example = true;
-      description = ''
-        Whether to enable dragging applications from the application list.
-      '';
-    };
+    enable_drag_source = defaultNullOpts.mkBool true ''
+      Whether to enable dragging applications from the application list.
+    '';
 
-    favorites = mkNullOrOption' {
-      type = with lib.types; listOf str;
-      example = [
-        "firefox"
-        "com.system76.CosmicFiles"
-        "com.system76.CosmicEdit"
-        "com.system76.CosmicTerm"
-        "com.system76.CosmicSettings"
-      ];
-      description = ''
-        A list of applications to always be shown in the application list.
-      '';
-    };
+    favorites =
+      defaultNullOpts.mkListOf lib.types.str
+        [
+          "firefox"
+          "com.system76.CosmicFiles"
+          "com.system76.CosmicEdit"
+          "com.system76.CosmicTerm"
+          "com.system76.CosmicSettings"
+        ]
+        ''
+          A list of applications to always be shown in the application list.
+        '';
 
-    filter_top_levels = mkNullOrOption' {
-      type =
-        with lib.types;
-        ronOptionalOf (ronEnum [
+    filter_top_levels =
+      defaultNullOpts.mkRonOptionalOf
+        (lib.types.ronEnum [
           "ActiveWorkspace"
           "ConfiguredOutput"
-        ]);
-      example = {
-        __type = "optional";
-        value = {
-          __type = "enum";
-          variant = "ActiveWorkspace";
-        };
-      };
-      description = ''
-        The top level filter to use for the application list.
-      '';
-    };
+        ])
+        {
+          __type = "optional";
+          value = {
+            __type = "enum";
+            variant = "ActiveWorkspace";
+          };
+        }
+        ''
+          The top level filter to use for the application list.
+        '';
   };
 
   settingsExample = {
@@ -62,12 +55,6 @@ lib.cosmic.applets.mkCosmicApplet {
       "com.system76.CosmicTerm"
       "com.system76.CosmicSettings"
     ];
-    filter_top_levels = {
-      __type = "optional";
-      value = {
-        __type = "enum";
-        variant = "ActiveWorkspace";
-      };
-    };
+    filter_top_levels = nestedLiteral ''cosmicLib.cosmic.mkRon "optional" (cosmicLib.cosmic.mkRon "enum" "ActiveWorkspace")'';
   };
 }
