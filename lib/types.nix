@@ -1,5 +1,34 @@
 { lib, ... }:
+let
+  rawRon = lib.mkOptionType {
+    check =
+      value:
+      let
+        keys = builtins.attrNames value;
+      in
+      builtins.isAttrs value
+      &&
+        [
+          "__type"
+          "value"
+        ] == keys
+      && value.__type == "raw"
+      && builtins.isString value.value;
+    description = "raw RON value";
+    descriptionClass = "noun";
+    emptyValue = {
+      value = {
+        __type = "raw";
+        value = "";
+      };
+    };
+    merge = lib.options.mergeEqualOption;
+    name = "rawRon";
+  };
+in
 {
+  inherit rawRon;
+
   cosmicComponent = lib.types.submodule {
     options = {
       version = lib.mkOption {
@@ -49,44 +78,14 @@
   maybeRonRaw =
     elemType:
     let
-      ronFirst = with lib.types; either rawRon elemType;
-      elemFirst = with lib.types; either elemType rawRon;
+      ronFirst = lib.types.either rawRon elemType;
+      elemFirst = lib.types.either elemType rawRon;
     in
     ronFirst
     // {
       name = "maybeRonRaw";
       inherit (elemFirst) description;
-      nestedTypes = {
-        inherit (lib.types) rawRon;
-        inherit elemType;
-      };
     };
-
-  rawRon = lib.mkOptionType {
-    check =
-      value:
-      let
-        keys = builtins.attrNames value;
-      in
-      builtins.isAttrs value
-      &&
-        [
-          "__type"
-          "value"
-        ] == keys
-      && value.__type == "raw"
-      && builtins.isString value.value;
-    description = "raw RON value";
-    descriptionClass = "noun";
-    emptyValue = {
-      value = {
-        __type = "raw";
-        value = "";
-      };
-    };
-    merge = lib.options.mergeEqualOption;
-    name = "rawRon";
-  };
 
   ronArrayOf =
     elemType: size:
@@ -153,9 +152,7 @@
                 "one of the following RON enum variants: ${lib.concatMapStringsSep ", " show variants}";
             descriptionClass = if builtins.length variants < 2 then "noun" else "conjunction";
             functor = lib.defaultFunctor name // {
-              payload = {
-                inherit variants;
-              };
+              payload = { inherit variants; };
               type = payload: ronEnum' payload.variants;
               binOp = a: b: { variants = lib.unique (a.variants + b.variants); };
             };
@@ -244,7 +241,19 @@
             };
           };
           functor = lib.defaultFunctor name // {
-            wrapped = elemType;
+            binOp =
+              a: b:
+              let
+                merged = a.elemType.typeMerge b.elemType.functor;
+              in
+              if merged == null then null else { elemType = merged; };
+            payload = { inherit elemType; };
+            type = payload: ronMapOf' payload.elemType;
+            wrappedDeprecationMessage =
+              { loc }:
+              lib.warn ''
+                The deprecated `type.functor.wrapped` attribute of the option `${lib.showOption loc}` is accessed, use `type.nestedTypes.elemType` instead.
+              '' elemType;
           };
           inherit (elemType) getSubModules;
           getSubOptions = prefix: elemType.getSubOptions (prefix ++ [ "<name>" ]);
@@ -323,7 +332,19 @@
           }";
           descriptionClass = "composite";
           functor = lib.defaultFunctor name // {
-            wrapped = elemType;
+            binOp =
+              a: b:
+              let
+                merged = a.elemType.typeMerge b.elemType.functor;
+              in
+              if merged == null then null else { elemType = merged; };
+            payload = { inherit elemType; };
+            type = payload: ronNamedStructOf' payload.elemType;
+            wrappedDeprecationMessage =
+              { loc }:
+              lib.warn ''
+                The deprecated `type.functor.wrapped` attribute of the option `${lib.showOption loc}` is accessed, use `type.nestedTypes.elemType` instead.
+              '' elemType;
           };
           inherit (elemType) getSubModules;
           getSubOptions = prefix: elemType.getSubOptions (prefix ++ [ "<name>" ]);
@@ -421,10 +442,22 @@
           }";
           descriptionClass = "composite";
           functor = lib.defaultFunctor name // {
-            wrapped = elemType;
+            binOp =
+              a: b:
+              let
+                merged = a.elemType.typeMerge b.elemType.functor;
+              in
+              if merged == null then null else { elemType = merged; };
+            payload = { inherit elemType; };
+            type = payload: ronOptionalOf' payload.elemType;
+            wrappedDeprecationMessage =
+              { loc }:
+              lib.warn ''
+                The deprecated `type.functor.wrapped` attribute of the option `${lib.showOption loc}` is accessed, use `type.nestedTypes.elemType` instead.
+              '' elemType;
           };
           inherit (elemType) getSubModules;
-          getSubOptions = prefix: elemType.getSubOptions prefix;
+          getSubOptions = elemType.getSubOptions;
           merge = loc: defs: {
             __type = "optional";
             value =
@@ -608,7 +641,7 @@
                           first
                           def
                         ]
-                      }\nUse `lib.mkForce value` or `lib.mkDefault value` to change the priority on any of these definitions."
+                      }"
                     else
                       first.value.variant
                   ) (builtins.head defs) (builtins.tail defs);
@@ -652,7 +685,19 @@
             };
           };
           functor = lib.defaultFunctor name // {
-            wrapped = elemType;
+            binOp =
+              a: b:
+              let
+                merged = a.elemType.typeMerge b.elemType.functor;
+              in
+              if merged == null then null else { elemType = merged; };
+            payload = { inherit elemType; };
+            type = payload: ronTupleOf' payload.elemType;
+            wrappedDeprecationMessage =
+              { loc }:
+              lib.warn ''
+                The deprecated `type.functor.wrapped` attribute of the option `${lib.showOption loc}` is accessed, use `type.nestedTypes.elemType` instead.
+              '' elemType;
           };
           inherit (elemType) getSubModules;
           getSubOptions = prefix: elemType.getSubOptions (prefix ++ [ "*" ]);
