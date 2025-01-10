@@ -10,7 +10,7 @@ in
     let
       shortcutSubmodule =
         let
-          generatedActions = lib.importJSON ../generated/shortcut-actions.json;
+          generatedActions = lib.importJSON ../generated/actions-for-shortcuts.json;
 
           allActions = generatedActions.Actions;
           actionDependencies = generatedActions.Dependencies;
@@ -57,7 +57,7 @@ in
                     type: names:
                     let
                       elemType =
-                        if builtins.hasAttr type actionDependencies then
+                        if actionDependencies ? type then
                           ronEnum (map (action: action.name) actionDependencies.${type})
                         else
                           rustToNixType type;
