@@ -1,7 +1,7 @@
 # Heavily inspired by nixvim
 { lib, ... }:
 let
-  inherit (lib.cosmic) nestedLiteralRon nestedRonExpression;
+  inherit (lib.cosmic) isRonType nestedLiteralRon nestedRonExpression;
 
   mkNullOrOption' =
     {
@@ -63,7 +63,14 @@ in
         { type, ... }@args:
         mkNullableWithRaw' (args // { type = with lib.types; listOf (maybeRonRaw type); });
 
-      mkNullable' = args: mkNullOrOption' (processDefaultNullArgs args);
+      mkNullable' =
+        args:
+        mkNullOrOption' (
+          processDefaultNullArgs args
+          // lib.optionalAttrs (args ? example && isRonType args.example) {
+            example = lib.cosmic.mkRonExpression 0 args.example null;
+          }
+        );
 
       mkNullableWithRaw' =
         { type, ... }@args: mkNullable' (args // { type = lib.types.maybeRonRaw type; });
@@ -95,108 +102,40 @@ in
           }
         );
 
-      mkRonChar' =
-        args:
-        mkNullableWithRaw' (
-          args
-          // {
-            type = lib.types.ronChar;
-          }
-          // lib.optionalAttrs (args ? example) { example = lib.cosmic.mkRonExpression 0 args.example null; }
-        );
+      mkRonChar' = args: mkNullableWithRaw' (args // { type = lib.types.ronChar; });
 
       mkRonEnum' =
         { variants, ... }@args:
         assert lib.assertMsg (builtins.isList variants) "mkRonEnum': `variants` must be a list";
         mkNullableWithRaw' (
-          builtins.removeAttrs args [ "variants" ]
-          // {
-            type = lib.types.ronEnum variants;
-          }
-          // lib.optionalAttrs (args ? example) { example = lib.cosmic.mkRonExpression 0 args.example null; }
+          builtins.removeAttrs args [ "variants" ] // { type = lib.types.ronEnum variants; }
         );
 
-      mkRonMap' =
-        args:
-        mkNullableWithRaw' (
-          args
-          // {
-            type = lib.types.ronMap;
-          }
-          // lib.optionalAttrs (args ? example) { example = lib.cosmic.mkRonExpression 0 args.example null; }
-        );
+      mkRonMap' = args: mkNullableWithRaw' (args // { type = lib.types.ronMap; });
 
       mkRonMapOf' =
         { type, ... }@args:
-        mkNullableWithRaw' (
-          args
-          // {
-            type = with lib.types; ronMapOf (maybeRonRaw type);
-          }
-          // lib.optionalAttrs (args ? example) {
-            example = lib.cosmic.mkRonExpression 0 args.example null;
-          }
-        );
+        mkNullableWithRaw' (args // { type = with lib.types; ronMapOf (maybeRonRaw type); });
 
-      mkRonNamedStruct' =
-        args:
-        mkNullableWithRaw' (
-          args
-          // {
-            type = lib.types.ronNamedStruct;
-          }
-          // lib.optionalAttrs (args ? example) { example = lib.cosmic.mkRonExpression 0 args.example null; }
-        );
+      mkRonNamedStruct' = args: mkNullableWithRaw' (args // { type = lib.types.ronNamedStruct; });
 
       mkRonNamedStructOf' =
         { type, ... }@args:
-        mkNullableWithRaw' (
-          args
-          // {
-            type = with lib.types; ronNamedStructOf (maybeRonRaw type);
-          }
-          // lib.optionalAttrs (args ? example) { example = lib.cosmic.mkRonExpression 0 args.example null; }
-        );
+        mkNullableWithRaw' (args // { type = with lib.types; ronNamedStructOf (maybeRonRaw type); });
 
-      mkRonOptional' =
-        args:
-        mkNullableWithRaw' (
-          args
-          // {
-            type = lib.types.ronOptional;
-          }
-          // lib.optionalAttrs (args ? example) { example = lib.cosmic.mkRonExpression 0 args.example null; }
-        );
+      mkRonOptional' = args: mkNullableWithRaw' (args // { type = lib.types.ronOptional; });
 
       mkRonOptionalOf' =
         { type, ... }@args:
-        mkNullableWithRaw' (
-          args
-          // {
-            type = with lib.types; ronOptionalOf (maybeRonRaw type);
-          }
-          // lib.optionalAttrs (args ? example) { example = lib.cosmic.mkRonExpression 0 args.example null; }
-        );
+        mkNullableWithRaw' (args // { type = with lib.types; ronOptionalOf (maybeRonRaw type); });
 
-      mkRonTuple' =
-        args:
-        mkNullableWithRaw' (
-          args
-          // {
-            type = lib.types.ronTuple;
-          }
-          // lib.optionalAttrs (args ? example) { example = lib.cosmic.mkRonExpression 0 args.example null; }
-        );
+      mkRonTuple' = args: mkNullableWithRaw' (args // { type = lib.types.ronTuple; });
 
       mkRonTupleEnum' =
         { variants, ... }@args:
         assert lib.assertMsg (builtins.isList variants) "mkRonTupleEnum': `variants` must be a list";
         mkNullableWithRaw' (
-          builtins.removeAttrs args [ "variants" ]
-          // {
-            type = lib.types.ronTupleEnum variants;
-          }
-          // lib.optionalAttrs (args ? example) { example = lib.cosmic.mkRonExpression 0 args.example null; }
+          builtins.removeAttrs args [ "variants" ] // { type = lib.types.ronTupleEnum variants; }
         );
 
       mkRonTupleEnumOf' =
@@ -206,18 +145,11 @@ in
           // {
             type = with lib.types; ronTupleEnumOf (maybeRonRaw type) variants;
           }
-          // lib.optionalAttrs (args ? example) { example = lib.cosmic.mkRonExpression 0 args.example null; }
         );
 
       mkRonTupleOf' =
         { type, ... }@args:
-        mkNullableWithRaw' (
-          args
-          // {
-            type = with lib.types; ronTupleOf (maybeRonRaw type);
-          }
-          // lib.optionalAttrs (args ? example) { example = lib.cosmic.mkRonExpression 0 args.example null; }
-        );
+        mkNullableWithRaw' (args // { type = with lib.types; ronTupleOf (maybeRonRaw type); });
 
       mkPositiveInt' = args: mkNullableWithRaw' (args // { type = lib.types.ints.positive; });
 

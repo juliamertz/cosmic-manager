@@ -141,22 +141,17 @@ in
         startIndent: value: previousType:
         if builtins.isAttrs value then
           let
-            nextIndent = if previousType != null then startIndent else startIndent + 1;
-
-            indent = level: lib.strings.replicate level "    ";
+            indent = level: lib.strings.replicate level "  ";
 
             toRonExpression =
               type: value:
-              if startIndent != 0 then
+              if previousType == null then
+                ronExpression type value (indent startIndent)
+              else
                 let
                   v = nestedRonExpression type value (indent startIndent);
                 in
-                if previousType == null || previousType == "namedStruct" then
-                  v
-                else
-                  nestedLiteral "(${v.__pretty v.val})"
-              else
-                ronExpression type value (indent startIndent);
+                if previousType == "namedStruct" then v else nestedLiteral "(${v.__pretty v.val})";
           in
           if isRonType value then
             if value.__type == "enum" then
@@ -165,7 +160,7 @@ in
                   if isRonType value.value then
                     toRonExpression "enum" {
                       inherit (value) variant;
-                      value = mkRonExpression' nextIndent value.value "enum";
+                      value = mkRonExpression' startIndent value.value "enum";
                     }
                   else
                     toRonExpression "enum" { inherit (value) value variant; }
@@ -178,13 +173,13 @@ in
                 toRonExpression "namedStruct" {
                   inherit (value) name;
                   value = builtins.mapAttrs (
-                    _: v: if isRonType v then mkRonExpression' nextIndent v "namedStruct" else v
+                    _: v: if isRonType v then mkRonExpression' startIndent v "namedStruct" else v
                   ) value.value;
                 }
               else
                 throw "lib.cosmic.mkRonExpression: namedStruct type must have name and value keys."
             else if isRonType value.value then
-              toRonExpression value.__type (mkRonExpression' nextIndent value.value value.__type)
+              toRonExpression value.__type (mkRonExpression' startIndent value.value value.__type)
             else
               toRonExpression value.__type value.value
           else

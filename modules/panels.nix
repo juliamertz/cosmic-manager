@@ -1,8 +1,6 @@
 { config, lib, ... }:
 let
-  inherit (lib.cosmic.options) mkNullOrOption';
-
-  cfg = config.wayland.desktopManager.cosmic;
+  inherit (lib.cosmic) defaultNullOpts nestedRonExpression;
 in
 {
   options.wayland.desktopManager.cosmic.panels =
@@ -10,44 +8,32 @@ in
       panelSubmodule = lib.types.submodule {
         freeformType = with lib.types; attrsOf cosmicEntryValue;
         options = {
-          anchor = mkNullOrOption' {
-            type = lib.types.ronEnum [
-              "Bottom"
-              "Left"
-              "Right"
-              "Top"
-            ];
-            example = {
-              __type = "enum";
-              variant = "Bottom";
-            };
-            description = ''
-              The position of the panel on the screen.
-            '';
-          };
-          anchor_gap = mkNullOrOption' {
-            type = lib.types.bool;
-            example = true;
-            description = ''
-              Whether there should be a gap between the panel and the screen edge.
-            '';
-          };
-          autohide = mkNullOrOption' {
-            type = lib.types.ronOptionalOf (
-              lib.types.submodule {
+          anchor =
+            defaultNullOpts.mkRonEnum [ "Bottom" "Left" "Right" "Top" ]
+              {
+                __type = "enum";
+                variant = "Bottom";
+              }
+              ''
+                The position of the panel on the screen.
+              '';
+
+          anchor_gap = defaultNullOpts.mkBool true ''
+            Whether there should be a gap between the panel and the screen edge.
+          '';
+
+          autohide =
+            defaultNullOpts.mkRonOptionalOf
+              (lib.types.submodule {
                 freeformType = with lib.types; attrsOf cosmicEntryValue;
                 options = {
-                  handle_size = mkNullOrOption' {
+                  handle_size = lib.mkOption {
                     type =
                       with lib.types;
-                      (addCheck lib.types.ints.u32 (x: x > 0))
+                      addCheck ints.u32 (x: x > 0)
                       // {
-                        description = "32 bit unsigned integer; must be greater than 0";
+                        description = "32-bit unsigned integer; must be greater than 0";
                       };
-                    example = 4;
-                    description = ''
-                      The size of the handle in pixels.
-                    '';
                   };
                   transition_time = lib.mkOption {
                     type = lib.types.ints.u32;
@@ -64,44 +50,42 @@ in
                     '';
                   };
                 };
+              })
+              {
+                __type = "optional";
+                value = {
+                  handle_size = 4;
+                  transition_time = 200;
+                  wait_time = 1000;
+                };
               }
-            );
-            example = {
-              __type = "optional";
-              value = {
-                handle_size = 4;
-                transition_time = 200;
-                wait_time = 1000;
-              };
-            };
-            description = ''
-              Whether the panel should autohide and the settings for autohide.
-              If set the `value` is set to `null`, the panel will not autohide.
-            '';
-          };
-          background = mkNullOrOption' {
-            type =
-              with lib.types;
-              either (ronEnum [
-                "Dark"
-                "Light"
-                "ThemeDefault"
-              ]) (ronTupleEnumOf (ronArrayOf float 3) [ "Color" ]);
-            example = {
-              __type = "enum";
-              variant = "Dark";
-            };
-            description = ''
-              The appearance of the panel.
-            '';
-          };
-          expand_to_edges = mkNullOrOption' {
-            type = lib.types.bool;
-            example = true;
-            description = ''
-              Whether the panel should expand to the edges of the screen.
-            '';
-          };
+              ''
+                Whether the panel should autohide and the settings for autohide.
+                If set the `value` is set to `null`, the panel will not autohide.
+              '';
+
+          background =
+            defaultNullOpts.mkNullableWithRaw
+              (
+                with lib.types;
+                either (ronEnum [
+                  "Dark"
+                  "Light"
+                  "ThemeDefault"
+                ]) (ronTupleEnumOf (ronArrayOf float 3) [ "Color" ])
+              )
+              {
+                __type = "enum";
+                variant = "Dark";
+              }
+              ''
+                The appearance of the panel.
+              '';
+
+          expand_to_edges = defaultNullOpts.mkBool true ''
+            Whether the panel should expand to the edges of the screen.
+          '';
+
           name = lib.mkOption {
             type = lib.types.str;
             example = "Panel";
@@ -109,121 +93,102 @@ in
               The name of the panel.
             '';
           };
-          opacity = mkNullOrOption' {
-            type = lib.types.numbers.between 0 1;
-            example = 1.0;
-            description = ''
-              The opacity of the panel.
-            '';
-          };
-          output = mkNullOrOption' {
-            type =
-              with lib.types;
-              either (ronEnum [
-                "Active"
-                "All"
-              ]) (ronTupleEnumOf str [ "Name" ]);
-            example = {
-              __type = "enum";
-              variant = "Name";
-              value = "Virtual-1";
-            };
-            description = ''
-              The output(s) the panel should be displayed on.
-            '';
-          };
-          plugins_center = mkNullOrOption' {
-            type = with lib.types; ronOptionalOf (listOf str);
-            example = {
-              __type = "optional";
-              value = [ "com.system76.CosmicAppletTime" ];
-            };
-            description = ''
-              The center plugins of the panel.
-            '';
-          };
-          plugins_wings = mkNullOrOption' {
-            type = with lib.types; ronOptionalOf (ronTupleOf (listOf str));
-            example = {
-              __type = "optional";
-              value = {
-                __type = "tuple";
-                value = [
-                  [
-                    "com.system76.CosmicPanelWorkspacesButton"
-                    "com.system76.CosmicPanelAppButton"
-                    "com.system76.CosmicAppletWorkspaces"
-                  ]
-                  [
-                    "com.system76.CosmicAppletInputSources"
-                    "com.system76.CosmicAppletStatusArea"
-                    "com.system76.CosmicAppletTiling"
-                    "com.system76.CosmicAppletAudio"
-                    "com.system76.CosmicAppletNetwork"
-                    "com.system76.CosmicAppletBattery"
-                    "com.system76.CosmicAppletNotifications"
-                    "com.system76.CosmicAppletBluetooth"
-                    "com.system76.CosmicAppletPower"
-                  ]
-                ];
-              };
-            };
-            description = ''
-              The plugins that will be displayed on the right and left sides of the panel, respectively.
-            '';
-          };
-          size = mkNullOrOption' {
-            type = lib.types.ronEnum [
-              "XS"
-              "S"
-              "M"
-              "L"
-              "XL"
-            ];
-            example = {
-              __type = "enum";
-              variant = "M";
-            };
-            description = ''
-              The size of the panel.
-            '';
-          };
+
+          opacity = defaultNullOpts.mkNullableWithRaw (lib.types.numbers.between 0.0 1.0) 1.0 ''
+            The opacity of the panel.
+          '';
+
+          output =
+            defaultNullOpts.mkNullableWithRaw
+              (
+                with lib.types;
+                either (ronEnum [
+                  "Active"
+                  "All"
+                ]) (ronTupleEnumOf str [ "Name" ])
+              )
+              {
+                __type = "enum";
+                variant = "Name";
+                value = "Virtual-1";
+              }
+              ''
+                The output(s) the panel should be displayed on.
+              '';
+
+          plugins_center =
+            defaultNullOpts.mkRonOptionalOf (with lib.types; listOf str)
+              {
+                __type = "optional";
+                value = [ "com.system76.CosmicAppletTime" ];
+              }
+              ''
+                The center applets of the panel.
+              '';
+
+          plugins_wings =
+            defaultNullOpts.mkRonOptionalOf (with lib.types; ronTupleOf (listOf str))
+              {
+                __type = "optional";
+                value = {
+                  __type = "tuple";
+                  value = [
+                    [
+                      "com.system76.CosmicPanelWorkspacesButton"
+                      "com.system76.CosmicPanelAppButton"
+                      "com.system76.CosmicAppletWorkspaces"
+                    ]
+                    [
+                      "com.system76.CosmicAppletInputSources"
+                      "com.system76.CosmicAppletStatusArea"
+                      "com.system76.CosmicAppletTiling"
+                      "com.system76.CosmicAppletAudio"
+                      "com.system76.CosmicAppletNetwork"
+                      "com.system76.CosmicAppletBattery"
+                      "com.system76.CosmicAppletNotifications"
+                      "com.system76.CosmicAppletBluetooth"
+                      "com.system76.CosmicAppletPower"
+                    ]
+                  ];
+                };
+              }
+              ''
+                The plugins that will be displayed on the right and left sides of the panel, respectively.
+              '';
+
+          size =
+            defaultNullOpts.mkRonEnum [ "XS" "S" "M" "L" "XL" ]
+              {
+                __type = "enum";
+                variant = "M";
+              }
+              ''
+                The size of the panel.
+              '';
         };
       };
     in
-    mkNullOrOption' {
+    lib.mkOption {
       type = lib.types.listOf panelSubmodule;
+      default = [ ];
       example = [
         {
-          anchor = {
-            __type = "enum";
-            variant = "Bottom";
-          };
+          anchor = nestedRonExpression "enum" "Bottom" "    ";
           anchor_gap = true;
-          autohide = {
-            __type = "optional";
-            value = {
-              handle_size = 4;
-              transition_time = 200;
-              wait_time = 1000;
-            };
-          };
-          background = {
-            __type = "enum";
-            variant = "Dark";
-          };
+          autohide = nestedRonExpression "optional" {
+            handle_size = 4;
+            transition_time = 200;
+            wait_time = 1000;
+          } "    ";
+          background = nestedRonExpression "enum" "Dark" "    ";
           expand_to_edges = true;
           name = "Panel";
           opacity = 1.0;
-          output = {
-            __type = "enum";
+          output = nestedRonExpression "enum" {
             variant = "Name";
             value = "Virtual-1";
-          };
-          plugins_center = {
-            __type = "optional";
-            value = [ "com.system76.CosmicAppletTime" ];
-          };
+          } "    ";
+          plugins_center = nestedRonExpression "optional" [ "com.system76.CosmicAppletTime" ] "    ";
           plugins_wings = {
             __type = "optional";
             value = {
@@ -248,19 +213,18 @@ in
               ];
             };
           };
-          size = {
-            __type = "enum";
-            variant = "M";
-          };
+          size = nestedRonExpression "enum" "M" "    ";
         }
       ];
     };
 
   config =
     let
+      cfg = config.wayland.desktopManager.cosmic;
+
       version = 1;
     in
-    lib.mkIf (cfg.enable && cfg.panels != null) {
+    lib.mkIf (cfg.panels != [ ]) {
       wayland.desktopManager.cosmic.configFile = lib.mkMerge (
         [
           {
