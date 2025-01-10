@@ -57,7 +57,7 @@ in
                     type: names:
                     let
                       elemType =
-                        if actionDependencies ? type then
+                        if builtins.hasAttr type actionDependencies then
                           ronEnum (map (action: action.name) actionDependencies.${type})
                         else
                           rustToNixType type;
