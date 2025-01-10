@@ -1,6 +1,6 @@
 { lib, ... }:
 let
-  inherit (lib.cosmic.options) mkNullOrOption';
+  inherit (lib.cosmic) defaultNullOpts;
 in
 lib.cosmic.applications.mkCosmicApplication {
   name = "cosmic-term";
@@ -12,133 +12,76 @@ lib.cosmic.applications.mkCosmicApplication {
   maintainers = [ lib.maintainers.HeitorAugustoLN ];
 
   settingsOptions = {
-    app_theme = mkNullOrOption' {
-      type = lib.types.ronEnum [
-        "Dark"
-        "Light"
-        "System"
-      ];
-      example = {
-        __type = "enum";
-        variant = "Dark";
-      };
-      description = ''
-        Controls the theme of the terminal.
+    app_theme =
+      defaultNullOpts.mkRonEnum [ "Dark" "Light" "System" ]
+        {
+          __type = "enum";
+          variant = "Dark";
+        }
+        ''
+          Controls the theme of the terminal.
 
-        - `Dark`: Use the dark theme.
-        - `Light`: Use the light theme.
-        - `System`: Follows the system theme.
-      '';
-    };
+          - `Dark`: Use the dark theme.
+          - `Light`: Use the light theme.
+          - `System`: Follows the system theme.
+        '';
 
-    bold_font_weight = mkNullOrOption' {
-      type = lib.types.ints.u16;
-      example = 700;
-      description = ''
-        Specifies the weight of bold text characters in the terminal.
-      '';
-    };
+    bold_font_weight = defaultNullOpts.mkU16 700 ''
+      Specifies the weight of bold text characters in the terminal.
+    '';
 
-    dim_font_weight = mkNullOrOption' {
-      type = lib.types.ints.u16;
-      example = 300;
-      description = ''
-        Specifies the weight of dim text characters in the terminal.
-      '';
-    };
+    dim_font_weight = defaultNullOpts.mkU16 300 ''
+      Specifies the weight of dim text characters in the terminal.
+    '';
 
-    focus_follows_mouse = mkNullOrOption' {
-      type = lib.types.bool;
-      example = true;
-      description = ''
-        Whether to enable focus follows mouse in the terminal.
+    focus_follows_mouse = defaultNullOpts.mkBool true ''
+      Whether to enable focus follows mouse in the terminal.
 
-        When enabled, the terminal split will automatically receive focus
-        when the mouse cursor hovers over it, without needing to click.
-      '';
-    };
+      When enabled, the terminal split will automatically receive focus
+      when the mouse cursor hovers over it, without needing to click.
+    '';
 
-    font_name = mkNullOrOption' {
-      type = lib.types.str;
-      example = "JetBrains Mono";
-      description = ''
-        Specificies the font family to use in the terminal.
-      '';
-    };
+    font_name = defaultNullOpts.mkStr "JetBrains Mono" ''
+      Specificies the font family to use in the terminal.
+    '';
 
-    font_size = mkNullOrOption' {
-      type = lib.types.ints.u16;
-      example = 12;
-      description = ''
-        Specifies the font size to use in the terminal.
-      '';
-    };
+    font_size = defaultNullOpts.mkU16 12 ''
+      Specifies the font size to use in the terminal.
+    '';
 
-    font_size_zoom_step_mul_100 = mkNullOrOption' {
-      type = lib.types.ints.u16;
-      example = 100;
-      description = ''
-        Controls the granularity of font size changes when zooming.
+    font_size_zoom_step_mul_100 = defaultNullOpts.mkU16 100 ''
+      Controls the granularity of font size changes when zooming.
 
-        Value is multiplied by 0.01 to determine the zoom step (e.g. 100 = 1px).
-      '';
-    };
+      Value is multiplied by 0.01 to determine the zoom step (e.g. 100 = 1px).
+    '';
 
-    font_stretch = mkNullOrOption' {
-      type = lib.types.ints.u16;
-      example = 100;
-      description = ''
-        Controls the horizontal font spacing of characters in the terminal.
-      '';
-    };
+    font_stretch = defaultNullOpts.mkU16 100 ''
+      Controls the horizontal font spacing of characters in the terminal.
+    '';
 
-    font_weight = mkNullOrOption' {
-      type = lib.types.ints.u16;
-      example = 400;
-      description = ''
-        Specifies the weight of normal text characters in the terminal.
-      '';
-    };
+    font_weight = defaultNullOpts.mkU16 400 ''
+      Specifies the weight of normal text characters in the terminal.
+    '';
 
-    opacity = mkNullOrOption' {
-      type = lib.types.ints.between 0 100;
-      example = 100;
-      description = ''
-        Specifies the opacity of the terminal background.
-      '';
-    };
+    opacity = defaultNullOpts.mkNullableWithRaw (lib.types.ints.between 0 100) 100 ''
+      Specifies the opacity of the terminal background.
+    '';
 
-    show_headerbar = mkNullOrOption' {
-      type = lib.types.bool;
-      example = true;
-      description = ''
-        Whether to show the terminal window title bar and menu.
-      '';
-    };
+    show_headerbar = defaultNullOpts.mkBool true ''
+      Whether to show the terminal window title bar and menu.
+    '';
 
-    syntax_theme_dark = mkNullOrOption' {
-      type = lib.types.str;
-      example = "COSMIC Dark";
-      description = ''
-        Specifies the color scheme used for syntax highlighting in dark mode.
-      '';
-    };
+    syntax_theme_dark = defaultNullOpts.mkStr "COSMIC Dark" ''
+      Specifies the color scheme used for syntax highlighting in dark mode.
+    '';
 
-    syntax_theme_light = mkNullOrOption' {
-      type = lib.types.str;
-      example = "COSMIC Light";
-      description = ''
-        Specifies the color scheme used for syntax highlighting in light mode.
-      '';
-    };
+    syntax_theme_light = defaultNullOpts.mkStr "COSMIC Light" ''
+      Specifies the color scheme used for syntax highlighting in light mode.
+    '';
 
-    use_bright_bold = mkNullOrOption' {
-      type = lib.types.bool;
-      example = true;
-      description = ''
-        Whether the terminal should use bright bold text.
-      '';
-    };
+    use_bright_bold = defaultNullOpts.mkBool true ''
+      Whether the terminal should use bright bold text.
+    '';
   };
 
   settingsExample = {
@@ -165,29 +108,28 @@ lib.cosmic.applications.mkCosmicApplication {
         profileSubmodule = lib.types.submodule {
           freeformType = with lib.types; attrsOf cosmicEntryValue;
           options = {
-            command = mkNullOrOption' {
-              type = lib.types.str;
+            command = defaultNullOpts.mkStr' {
+              example = "bash";
               description = ''
                 The shell or program to execute when opening a new terminal instance with this profile.
                 If it is not specified, it will default to your system shell.
               '';
-              example = "bash";
               apply = toString;
             };
             hold = lib.mkOption {
               type = lib.types.bool;
+              example = true;
               description = ''
                 Whether the terminal should continue running after the command exits.
               '';
-              example = true;
             };
             is_default = lib.mkOption {
               type = lib.types.bool;
               default = false;
+              example = true;
               description = ''
                 Whether the profile is the default.
               '';
-              example = true;
             };
             name = lib.mkOption {
               type = lib.types.str;
@@ -210,29 +152,28 @@ lib.cosmic.applications.mkCosmicApplication {
               '';
               example = "COSMIC Light";
             };
-            tab_title = mkNullOrOption' {
-              type = lib.types.str;
+            tab_title = defaultNullOpts.mkStr' {
+              example = "Default";
               description = ''
                 Overrides the title of the terminal tab.
                 If it is not specified, it will not override the title.
               '';
-              example = "Default";
               apply = toString;
             };
-            working_directory = mkNullOrOption' {
-              type = lib.types.str;
+            working_directory = defaultNullOpts.mkStr' {
+              example = "/home/user";
               description = ''
                 The working directory to use when opening a new terminal instance with this profile.
                 If it is not specified, it will continue using the current working directory.
               '';
-              example = "/home/user";
               apply = toString;
             };
           };
         };
       in
-      mkNullOrOption' {
+      lib.mkOption {
         type = with lib.types; listOf profileSubmodule;
+        default = [ ];
         example = [
           {
             command = "bash";
@@ -272,7 +213,7 @@ lib.cosmic.applications.mkCosmicApplication {
 
     colorSchemes =
       let
-        colorsSubmodule =
+        mkColorsSubmodule =
           scope:
           lib.types.submodule {
             freeformType = with lib.types; attrsOf cosmicEntryValue;
@@ -339,7 +280,7 @@ lib.cosmic.applications.mkCosmicApplication {
           freeformType = with lib.types; attrsOf cosmicEntryValue;
           options = {
             bright = lib.mkOption {
-              type = colorsSubmodule "bright";
+              type = mkColorsSubmodule "bright";
               description = ''
                 The bright colors of the terminal.
               '';
@@ -359,7 +300,7 @@ lib.cosmic.applications.mkCosmicApplication {
               example = "#FFFFFF";
             };
             dim = lib.mkOption {
-              type = colorsSubmodule "dim";
+              type = mkColorsSubmodule "dim";
               description = ''
                 The dim colors of the terminal.
               '';
@@ -396,7 +337,7 @@ lib.cosmic.applications.mkCosmicApplication {
               example = "Catppuccin Mocha";
             };
             normal = lib.mkOption {
-              type = colorsSubmodule "normal";
+              type = mkColorsSubmodule "normal";
               description = ''
                 The normal colors of the terminal.
               '';
@@ -404,8 +345,9 @@ lib.cosmic.applications.mkCosmicApplication {
           };
         };
       in
-      mkNullOrOption' {
+      lib.mkOption {
         type = lib.types.listOf colorSchemeSubmodule;
+        default = [ ];
         example = [
           {
             mode = "dark";
@@ -451,7 +393,7 @@ lib.cosmic.applications.mkCosmicApplication {
 
   extraConfig = cfg: {
     wayland.desktopManager.cosmic.configFile."com.system76.CosmicTerm".entries = lib.mkMerge [
-      (lib.optionalAttrs (cfg.profiles != null) {
+      (lib.optionalAttrs (cfg.profiles != [ ]) {
         default_profile = {
           __type = "optional";
           value = lib.lists.findFirstIndex (profile: profile.is_default) null cfg.profiles;
@@ -465,7 +407,7 @@ lib.cosmic.applications.mkCosmicApplication {
         };
       })
 
-      (lib.optionalAttrs (cfg.colorSchemes != null) {
+      (lib.optionalAttrs (cfg.colorSchemes != [ ]) {
         color_schemes_dark = {
           __type = "map";
           value = lib.imap0 (index: colorscheme: {
