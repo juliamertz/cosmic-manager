@@ -1,6 +1,6 @@
 { lib, ... }:
 let
-  inherit (lib.cosmic) defaultNullOpts nestedRonExpression;
+  inherit (lib.cosmic) defaultNullOpts;
 in
 lib.cosmic.applications.mkCosmicApplication {
   name = "cosmic-term";
@@ -85,7 +85,10 @@ lib.cosmic.applications.mkCosmicApplication {
   };
 
   settingsExample = {
-    app_theme = nestedRonExpression "enum" "Dark" "";
+    app_theme = {
+      __type = "enum";
+      variant = "Dark";
+    };
     bold_font_weight = 700;
     dim_font_weight = 300;
     focus_follows_mouse = true;

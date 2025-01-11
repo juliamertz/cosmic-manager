@@ -1,7 +1,12 @@
 # Heavily inspired by nixvim
 { lib, ... }:
 let
-  inherit (lib.cosmic) isRonType nestedLiteralRon nestedRonExpression;
+  inherit (lib.cosmic)
+    isRonType
+    literalRon
+    mkRonExpression
+    nestedLiteral
+    ;
 
   mkNullOrOption' =
     {
@@ -68,7 +73,7 @@ in
         mkNullOrOption' (
           processDefaultNullArgs args
           // lib.optionalAttrs (args ? example && isRonType args.example) {
-            example = lib.cosmic.mkRonExpression 0 args.example null;
+            example = mkRonExpression 0 args.example null;
           }
         );
 
@@ -87,9 +92,9 @@ in
           // lib.optionalAttrs (args ? example) {
             example =
               if builtins.isString args.example then
-                lib.cosmic.literalRon args.example
+                literalRon args.example
               else
-                lib.cosmic.mkRonExpression 0 args.example null;
+                mkRonExpression 0 args.example null;
           }
         );
 
@@ -328,47 +333,71 @@ in
       default = { };
       example =
         if example == null then
-          {
-            foo = "bar";
-            baz = 42;
-            bool = true;
-            float = 1.0;
-            list = [
-              "a"
-              "b"
-              "c"
-            ];
-            set = {
-              a = "b";
-              c = "d";
-            };
-            optional = nestedRonExpression "optional" 3 "  ";
-            raw = nestedLiteralRon "RawValue";
-            char = nestedRonExpression "char" "c" "  ";
-            map = nestedRonExpression "map" [
-              {
-                key = "key";
-                value = "value";
-              }
-            ] "  ";
-            tuple = nestedRonExpression "tuple" [
-              "a"
-              1
-            ] "  ";
-            namedStruct = nestedRonExpression "namedStruct" {
-              name = "NamedStruct";
-              value = {
-                key = "value";
+          builtins.mapAttrs
+            (_: value: if isRonType value then nestedLiteral (mkRonExpression 1 value null) else value)
+            {
+              bool = true;
+              char = {
+                __type = "char";
+                value = "a";
               };
-            } "  ";
-            enum = nestedRonExpression "enum" "ActiveWorkspace" "  ";
-            tupleEnum = nestedRonExpression "enum" {
-              variant = "TupleEnum";
-              value = [ "foobar" ];
-            } "  ";
-          }
+              enum = {
+                __type = "enum";
+                variant = "FooBar";
+              };
+              float = 3.14;
+              int = 333;
+              list = [
+                "foo"
+                "bar"
+                "baz"
+              ];
+              map = {
+                __type = "map";
+                value = [
+                  {
+                    key = "foo";
+                    value = "bar";
+                  }
+                ];
+              };
+              namedStruct = {
+                __type = "namedStruct";
+                name = "foo";
+                value = {
+                  bar = "baz";
+                };
+              };
+              optional = {
+                __type = "optional";
+                value = "foo";
+              };
+              raw = {
+                __type = "raw";
+                value = "foo";
+              };
+              string = "hello";
+              struct = {
+                foo = "bar";
+              };
+              tuple = {
+                __type = "tuple";
+                value = [
+                  "foo"
+                  "bar"
+                  "baz"
+                ];
+              };
+              tupleEnum = {
+                __type = "enum";
+                variant = "FooBar";
+                value = [ "baz" ];
+              };
+            }
         else
-          example;
+          builtins.mapAttrs (
+            _: value: if isRonType value then nestedLiteral (mkRonExpression 1 value null) else value
+          ) example;
       inherit description;
     };
 }

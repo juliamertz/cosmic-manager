@@ -1,6 +1,6 @@
 { lib, ... }:
 let
-  inherit (lib.cosmic) defaultNullOpts nestedLiteral;
+  inherit (lib.cosmic) defaultNullOpts;
 in
 lib.cosmic.applets.mkCosmicApplet {
   name = "app-list";
@@ -55,6 +55,12 @@ lib.cosmic.applets.mkCosmicApplet {
       "com.system76.CosmicTerm"
       "com.system76.CosmicSettings"
     ];
-    filter_top_levels = nestedLiteral ''cosmicLib.cosmic.mkRon "optional" (cosmicLib.cosmic.mkRon "enum" "ActiveWorkspace")'';
+    filter_top_levels = {
+      __type = "optional";
+      value = {
+        __type = "enum";
+        variant = "ActiveWorkspace";
+      };
+    };
   };
 }
