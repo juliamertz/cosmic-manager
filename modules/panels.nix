@@ -1,6 +1,11 @@
 { config, lib, ... }:
 let
-  inherit (lib.cosmic) defaultNullOpts nestedRonExpression;
+  inherit (lib.cosmic)
+    defaultNullOpts
+    isRonType
+    mkRonExpression
+    nestedLiteral
+    ;
 in
 {
   options.wayland.desktopManager.cosmic.panels =
@@ -176,51 +181,78 @@ in
     lib.mkOption {
       type = lib.types.listOf panelSubmodule;
       default = [ ];
-      example = [
-        {
-          anchor = nestedRonExpression "enum" "Bottom" "    ";
-          anchor_gap = true;
-          autohide = nestedRonExpression "optional" {
-            handle_size = 4;
-            transition_time = 200;
-            wait_time = 1000;
-          } "    ";
-          background = nestedRonExpression "enum" "Dark" "    ";
-          expand_to_edges = true;
-          name = "Panel";
-          opacity = 1.0;
-          output = nestedRonExpression "enum" {
-            variant = "Name";
-            value = "Virtual-1";
-          } "    ";
-          plugins_center = nestedRonExpression "optional" [ "com.system76.CosmicAppletTime" ] "    ";
-          plugins_wings = {
-            __type = "optional";
-            value = {
-              __type = "tuple";
-              value = [
-                [
-                  "com.system76.CosmicPanelWorkspacesButton"
-                  "com.system76.CosmicPanelAppButton"
-                  "com.system76.CosmicAppletWorkspaces"
-                ]
-                [
-                  "com.system76.CosmicAppletInputSources"
-                  "com.system76.CosmicAppletStatusArea"
-                  "com.system76.CosmicAppletTiling"
-                  "com.system76.CosmicAppletAudio"
-                  "com.system76.CosmicAppletNetwork"
-                  "com.system76.CosmicAppletBattery"
-                  "com.system76.CosmicAppletNotifications"
-                  "com.system76.CosmicAppletBluetooth"
-                  "com.system76.CosmicAppletPower"
-                ]
-              ];
-            };
-          };
-          size = nestedRonExpression "enum" "M" "    ";
-        }
-      ];
+      example =
+        let
+          panels = [
+            {
+              anchor = {
+                __type = "enum";
+                variant = "Bottom";
+              };
+              anchor_gap = true;
+              autohide = {
+                __type = "optional";
+                value = {
+                  handle_size = 4;
+                  transition_time = 200;
+                  wait_time = 1000;
+                };
+              };
+              background = {
+                __type = "enum";
+                variant = "Dark";
+              };
+              expand_to_edges = true;
+              name = "Panel";
+              opacity = 1.0;
+              output = {
+                __type = "enum";
+                variant = "Name";
+                value = "Virtual-1";
+              };
+              plugins_center = {
+                __type = "optional";
+                value = [ "com.system76.CosmicAppletTime" ];
+              };
+              plugins_wings = {
+                __type = "optional";
+                value = {
+                  __type = "tuple";
+                  value = [
+                    [
+                      "com.system76.CosmicPanelWorkspacesButton"
+                      "com.system76.CosmicPanelAppButton"
+                      "com.system76.CosmicAppletWorkspaces"
+                    ]
+                    [
+                      "com.system76.CosmicAppletInputSources"
+                      "com.system76.CosmicAppletStatusArea"
+                      "com.system76.CosmicAppletTiling"
+                      "com.system76.CosmicAppletAudio"
+                      "com.system76.CosmicAppletNetwork"
+                      "com.system76.CosmicAppletBattery"
+                      "com.system76.CosmicAppletNotifications"
+                      "com.system76.CosmicAppletBluetooth"
+                      "com.system76.CosmicAppletPower"
+                    ]
+                  ];
+                };
+              };
+              size = {
+                __type = "enum";
+                variant = "M";
+              };
+            }
+          ];
+        in
+        lib.pipe panels [
+          (map (
+            panel:
+            builtins.mapAttrs (
+              _: value: if isRonType value then nestedLiteral (mkRonExpression 2 value null) else value
+            ) panel
+          ))
+        ];
     };
 
   config =
