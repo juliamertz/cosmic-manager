@@ -11,18 +11,6 @@ in
       shortcutSubmodule =
         let
           generatedActions = lib.importJSON ../generated/actions-for-shortcuts.json;
-
-          allActions = generatedActions.Actions;
-          actionDependencies = generatedActions.Dependencies;
-
-          actionsWithoutType = builtins.filter (action: !(builtins.hasAttr "type" action)) allActions;
-          actionsWithType = builtins.filter (action: builtins.hasAttr "type" action) allActions;
-          actionsWithTypeGrouped = builtins.groupBy (action: action.type) actionsWithType;
-          actionsWithTypeKeyValue = builtins.mapAttrs (
-            _type: actions: map (action: action.name) actions
-          ) actionsWithTypeGrouped;
-
-          simpleActions = map (action: action.name) actionsWithoutType;
         in
         lib.types.submodule {
           options = {
@@ -51,19 +39,37 @@ in
                 with lib.types;
                 oneOf (
                   [
-                    (ronEnum simpleActions)
+                    (ronEnum (
+                      lib.pipe generatedActions [
+                        (builtins.getAttr "Actions")
+                        (builtins.filter (action: !(builtins.hasAttr "type" action)))
+                        (map (action: action.name))
+                      ]
+                    ))
                   ]
-                  ++ lib.mapAttrsToList (
-                    type: names:
-                    let
-                      elemType =
-                        if builtins.hasAttr type actionDependencies then
-                          ronEnum (map (action: action.name) actionDependencies.${type})
-                        else
-                          rustToNixType type;
-                    in
-                    ronTupleEnumOf elemType names
-                  ) actionsWithTypeKeyValue
+                  ++
+                    lib.mapAttrsToList
+                      (
+                        type: names:
+                        let
+                          actionDependencies = generatedActions.Dependencies;
+
+                          elemType =
+                            if builtins.hasAttr type actionDependencies then
+                              ronEnum (map (action: action.name) actionDependencies.${type})
+                            else
+                              rustToNixType type;
+                        in
+                        ronTupleEnumOf elemType names
+                      )
+                      (
+                        lib.pipe generatedActions [
+                          (builtins.getAttr "Actions")
+                          (builtins.filter (action: builtins.hasAttr "type" action))
+                          (builtins.groupBy (action: action.type))
+                          (builtins.mapAttrs (_: actions: map (action: action.name) actions))
+                        ]
+                      )
                 );
               example = {
                 __type = "enum";
