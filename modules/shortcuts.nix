@@ -125,7 +125,8 @@ in
               key = "XF86MonBrightnessDown";
               action = {
                 __type = "enum";
-                variant = "BrightnessDown";
+                variant = "System";
+                value = [ "BrightnessDown" ];
               };
             }
           ];
