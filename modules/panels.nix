@@ -22,37 +22,40 @@ in
             Whether there should be a gap between the panel and the screen edge.
           '';
 
+          # HACK: Submodule options won't show up if maybeRonRaw comes before it.
           autohide =
-            defaultNullOpts.mkRonOptionalOf
-              (lib.types.submodule {
-                freeformType = with lib.types; attrsOf cosmicEntryValue;
-                options = {
-                  handle_size = lib.mkOption {
-                    type =
-                      with lib.types;
-                      maybeRonRaw (
-                        addCheck ints.u32 (x: x > 0)
-                        // {
-                          description = "32-bit unsigned integer; must be greater than 0";
-                        }
-                      );
+            defaultNullOpts.mkNullable
+              (lib.types.ronOptionalOf (
+                lib.types.submodule {
+                  freeformType = with lib.types; attrsOf cosmicEntryValue;
+                  options = {
+                    handle_size = lib.mkOption {
+                      type =
+                        with lib.types;
+                        maybeRonRaw (
+                          addCheck ints.u32 (x: x > 0)
+                          // {
+                            description = "32-bit unsigned integer that must be greater than 0";
+                          }
+                        );
+                    };
+                    transition_time = lib.mkOption {
+                      type = with lib.types; maybeRonRaw ints.u32;
+                      example = 200;
+                      description = ''
+                        The time in milliseconds it should take to transition the panel hiding.
+                      '';
+                    };
+                    wait_time = lib.mkOption {
+                      type = with lib.types; maybeRonRaw ints.u32;
+                      example = 1000;
+                      description = ''
+                        The time in milliseconds without pointer focus before the panel hides.
+                      '';
+                    };
                   };
-                  transition_time = lib.mkOption {
-                    type = with lib.types; maybeRonRaw ints.u32;
-                    example = 200;
-                    description = ''
-                      The time in milliseconds it should take to transition the panel hiding.
-                    '';
-                  };
-                  wait_time = lib.mkOption {
-                    type = with lib.types; maybeRonRaw ints.u32;
-                    example = 1000;
-                    description = ''
-                      The time in milliseconds without pointer focus before the panel hides.
-                    '';
-                  };
-                };
-              })
+                }
+              ))
               {
                 __type = "optional";
                 value = {
