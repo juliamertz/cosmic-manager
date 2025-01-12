@@ -11,7 +11,7 @@ let
     imports = [
       (import file {
         inherit config pkgs;
-        lib = import ./extend-lib.nix { inherit config lib pkgs; };
+        lib = import ./extend-lib.nix { inherit lib; };
       })
     ];
   };

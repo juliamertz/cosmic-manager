@@ -41,7 +41,7 @@
   };
 
   config = {
-    _module.args.cosmicLib = lib.mkDefault (import ../lib/extend-lib.nix { inherit config lib pkgs; });
+    _module.args.cosmicLib = lib.mkDefault (import ../lib/extend-lib.nix { inherit lib; });
     lib.cosmic = lib.mkDefault config._module.args.cosmicLib.cosmic;
   };
 }

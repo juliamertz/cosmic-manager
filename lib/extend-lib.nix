@@ -1,13 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ lib, ... }:
 lib.extend (
   final: prev: {
     cosmic = import ./. {
-      inherit config pkgs;
       lib = final;
     };
 

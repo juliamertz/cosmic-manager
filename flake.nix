@@ -39,6 +39,8 @@
           mkSite = pkgs.callPackage ./docs/generate-website.nix { };
         in
         {
+          checks = pkgs.callPackages ./tests { };
+
           devShells.default = import ./shell.nix { inherit pkgs; };
 
           formatter = pkgs.treefmt;
