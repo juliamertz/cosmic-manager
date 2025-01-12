@@ -219,9 +219,9 @@ let
   };
 in
 if results == [ ] then
-  runCommandLocal "lib-tests-success" { } "touch $out"
+  runCommandLocal "to-ron-success" { } "touch $out"
 else
-  runCommandLocal "lib-tests-failure"
+  runCommandLocal "to-ron-failure"
     {
       results = builtins.concatStringsSep "\n" (
         map (result: ''
