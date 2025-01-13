@@ -4,7 +4,9 @@
     {
       extraConfig,
       cfg,
-      enabled ? cfg.enable,
+      opts,
+      enabled ?
+        cfg.enable or (throw "`enabled` argument was not provided and `cfg.enable` option was found."),
     }:
     let
       maybeApply =
@@ -13,6 +15,7 @@
     in
     lib.pipe extraConfig [
       (maybeApply cfg)
+      (maybeApply opts)
       (lib.mkIf enabled)
     ];
 }

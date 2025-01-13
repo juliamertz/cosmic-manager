@@ -17,6 +17,8 @@
         appsByName = ./apps/by-name;
       in
       [
+        ./misc
+
         ./files.nix
         ./panels.nix
         ./shortcuts.nix

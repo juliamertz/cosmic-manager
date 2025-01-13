@@ -3,6 +3,7 @@
   mkCosmicApplication =
     {
       configurationVersion,
+      description ? null,
       extraConfig ? _cfg: { },
       extraOptions ? { },
       hasSettings ? true,
@@ -17,10 +18,21 @@
       settingsExample ? null,
     }@args:
     let
+      loc = [
+        "programs"
+        name
+      ];
+
       module =
-        { config, pkgs, ... }:
+        {
+          config,
+          options,
+          pkgs,
+          ...
+        }:
         let
-          cfg = config.programs.${name};
+          cfg = lib.getAttrFromPath loc config;
+          opts = lib.getAttrFromPath loc options;
         in
         {
           options.programs.${name} =
@@ -63,12 +75,19 @@
               })
 
               (lib.optionalAttrs (args ? extraConfig) (
-                lib.cosmic.modules.applyExtraConfig { inherit cfg extraConfig; }
+                lib.cosmic.modules.applyExtraConfig { inherit cfg extraConfig opts; }
               ))
             ]
           );
 
-          meta.maintainers = maintainers;
+          meta = {
+            inherit maintainers;
+            cosmicInfo = {
+              inherit description;
+              url = args.url or opts.package.default.meta.homepage;
+              path = loc;
+            };
+          };
         };
     in
     {

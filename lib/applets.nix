@@ -3,6 +3,7 @@
   mkCosmicApplet =
     {
       configurationVersion,
+      description ? null,
       extraConfig ? _cfg: { },
       extraOptions ? { },
       hasSettings ? true,
@@ -18,10 +19,24 @@
       settingsExample ? null,
     }@args:
     let
+      loc = [
+        "wayland"
+        "desktopManager"
+        "cosmic"
+        "applets"
+        name
+      ];
+
       module =
-        { config, pkgs, ... }:
+        {
+          config,
+          options,
+          pkgs,
+          ...
+        }:
         let
-          cfg = config.wayland.desktopManager.cosmic.applets.${name};
+          cfg = lib.getAttrFromPath loc config;
+          opts = lib.getAttrFromPath loc options;
         in
         {
           options.wayland.desktopManager.cosmic.applets.${name} =
@@ -79,12 +94,30 @@
                 })
 
                 (lib.optionalAttrs (args ? extraConfig) (
-                  lib.cosmic.modules.applyExtraConfig { inherit cfg extraConfig; }
+                  lib.cosmic.modules.applyExtraConfig {
+                    inherit
+                      cfg
+                      enabled
+                      extraConfig
+                      opts
+                      ;
+                  }
                 ))
               ]
             );
 
-          meta.maintainers = maintainers;
+          meta = {
+            inherit maintainers;
+            cosmicInfo = {
+              inherit description;
+              url =
+                if isBuiltin then
+                  "https://github.com/pop-os/cosmic-applets"
+                else
+                  args.url or opts.package.default.meta.homepage;
+              path = loc;
+            };
+          };
         };
     in
     {
