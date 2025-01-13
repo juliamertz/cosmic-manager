@@ -155,6 +155,13 @@ lib.cosmic.applications.mkCosmicApplication {
                   };
                 };
               };
+              example = {
+                grid = 100;
+                list = 100;
+              };
+              description = ''
+                The icon sizes of the grid and list views.
+              '';
             };
 
             show_hidden = lib.mkOption {
@@ -176,6 +183,9 @@ lib.cosmic.applications.mkCosmicApplication {
                 __type = "enum";
                 variant = "List";
               } null;
+              description = ''
+                The default view of the tab.
+              '';
             };
           };
         })

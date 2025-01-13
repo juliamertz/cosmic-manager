@@ -387,6 +387,9 @@ lib.cosmic.applications.mkCosmicApplication {
             };
           }
         ];
+        description = ''
+          The color schemes to include in the terminal.
+        '';
       };
   };
 

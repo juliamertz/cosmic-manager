@@ -35,9 +35,13 @@ in
                         maybeRonRaw (
                           addCheck ints.u32 (x: x > 0)
                           // {
-                            description = "32-bit unsigned integer that must be greater than 0";
+                            description = "Non-zero 32-bit unsigned integer";
                           }
                         );
+                      example = 4;
+                      description = ''
+                        The size of the handle in pixels.
+                      '';
                     };
                     transition_time = lib.mkOption {
                       type = with lib.types; maybeRonRaw ints.u32;
@@ -241,6 +245,9 @@ in
           ];
         in
         mkRonExpression 0 panels null;
+      description = ''
+        The panels that will be displayed on the desktop.
+      '';
     };
 
   config =
