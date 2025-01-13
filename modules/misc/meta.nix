@@ -5,7 +5,7 @@ let
     name = "maintainer";
     check = maintainer: builtins.elem maintainer (builtins.attrValues lib.maintainers);
     merge =
-      loc: defs:
+      _: defs:
       let
         def = lib.last defs;
       in

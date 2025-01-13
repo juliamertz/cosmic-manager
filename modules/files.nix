@@ -212,29 +212,6 @@
     let
       cfg = config.wayland.desktopManager.cosmic;
 
-      cosmic-ctl = pkgs.rustPlatform.buildRustPackage {
-        pname = "cosmic-ctl";
-        version = "1.1.0";
-
-        src = pkgs.fetchFromGitHub {
-          owner = "cosmic-utils";
-          repo = "cosmic-ctl";
-          tag = "v1.1.0";
-          hash = "sha256-dcUzrJcwJpzbYPuqdHgm43NYbaowsFmFP4sS0cfzNAg=";
-        };
-
-        useFetchCargoVendor = true;
-        cargoHash = "sha256-EReo2hkBaIO1YOBx4D9rQSXlx+3NK5VQtj59jfZZI/0=";
-
-        meta = {
-          description = "CLI for COSMIC Desktop configuration management";
-          homepage = "https://github.com/cosmic-utils/cosmic-ctl";
-          license = lib.licenses.gpl3Only;
-          maintainers = [ lib.maintainers.HeitorAugustoLN ];
-          mainProgram = "cosmic-ctl";
-        };
-      };
-
       makeOperations =
         xdgDirectory: components:
         lib.flatten (
@@ -271,12 +248,12 @@
       home = {
         activation = lib.mkIf cfg.enable {
           configure-cosmic = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-            run ${lib.getExe cosmic-ctl} apply ${json}
+            run ${lib.getExe pkgs.cosmic-ext-ctl} apply ${json}
           '';
 
           reset-cosmic = lib.mkIf cfg.resetFiles (
             lib.hm.dag.entryBefore [ "configure-cosmic" ] ''
-              run ${lib.getExe cosmic-ctl} reset --force --xdg-dirs ${builtins.concatStringsSep "," cfg.resetFilesDirectories} ${
+              run ${lib.getExe pkgs.cosmic-ext-ctl} reset --force --xdg-dirs ${builtins.concatStringsSep "," cfg.resetFilesDirectories} ${
                 lib.optionalString (
                   builtins.length cfg.resetFilesExclude > 0
                 ) "--exclude ${builtins.concatStringsSep "," cfg.resetFilesExclude}"
@@ -285,7 +262,7 @@
           );
         };
 
-        packages = lib.optionals cfg.enable [ cosmic-ctl ];
+        packages = lib.optionals cfg.enable [ pkgs.cosmic-ext-ctl ];
       };
     };
 }

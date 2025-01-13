@@ -16,9 +16,14 @@ pkgs.mkShell {
         done
       '';
     in
+    with pkgs;
     [
-      pkgs.deadnix
-      pkgs.nixfmt-rfc-style
+      cargo
+      clippy
+      deadnix
+      nixfmt-rfc-style
+      rustc
+      rustfmt
       statix-fix
     ];
 }
