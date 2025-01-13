@@ -6,31 +6,8 @@
 }:
 {
   imports = import ../lib/import-modules.nix {
-    inherit
-      config
-      lib
-      pkgs
-      ;
-    modules =
-      let
-        appletsByName = ./applets/by-name;
-        appsByName = ./apps/by-name;
-        misc = ./misc;
-      in
-      [
-        ./files.nix
-        ./panels.nix
-        ./shortcuts.nix
-      ]
-      ++ lib.foldlAttrs (
-        prev: name: type:
-        prev ++ lib.optional (type == "directory") (appsByName + "/${name}")
-      ) [ ] (builtins.readDir appsByName)
-      ++ lib.foldlAttrs (
-        prev: name: type:
-        prev ++ lib.optional (type == "directory") (appletsByName + "/${name}")
-      ) [ ] (builtins.readDir appletsByName)
-      ++ lib.filesystem.listFilesRecursive misc;
+    inherit config lib pkgs;
+    modules = import ./all-modules.nix { inherit lib; };
   };
 
   options.wayland.desktopManager.cosmic.enable = lib.mkEnableOption "" // {
