@@ -12,7 +12,7 @@
       maintainers,
       name,
       originalName ? name,
-      package ? if isBuiltin then null else package,
+      package ? if isBuiltin then null else name,
       settingsDescription ? "Configuration entries for ${originalName} applet.",
       settingsOptions ? { },
       settingsExample ? null,

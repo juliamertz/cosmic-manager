@@ -184,7 +184,7 @@ in
           else
             toRonExpression value.__type value.value
         else if builtins.isList value then
-          map (v: mkRonExpression' nextIndent v null) value
+          map (v: mkRonExpression' nextIndent v "list") value
         else if builtins.isAttrs value then
           builtins.mapAttrs (_: v: mkRonExpression' nextIndent v null) value
         else

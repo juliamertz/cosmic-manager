@@ -11,7 +11,7 @@
       maintainers,
       name,
       originalName ? name,
-      package,
+      package ? name,
       settingsDescription ? "Configuration entries for ${originalName}.",
       settingsOptions ? { },
       settingsExample ? null,
