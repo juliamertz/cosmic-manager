@@ -15,10 +15,9 @@
       let
         appletsByName = ./applets/by-name;
         appsByName = ./apps/by-name;
+        misc = ./misc;
       in
       [
-        ./misc
-
         ./files.nix
         ./panels.nix
         ./shortcuts.nix
@@ -30,7 +29,8 @@
       ++ lib.foldlAttrs (
         prev: name: type:
         prev ++ lib.optional (type == "directory") (appletsByName + "/${name}")
-      ) [ ] (builtins.readDir appletsByName);
+      ) [ ] (builtins.readDir appletsByName)
+      ++ lib.filesystem.listFilesRecursive misc;
   };
 
   options.wayland.desktopManager.cosmic.enable = lib.mkEnableOption "" // {

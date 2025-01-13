@@ -39,7 +39,7 @@
           opts = lib.getAttrFromPath loc options;
         in
         {
-          options.wayland.desktopManager.cosmic.applets.${name} =
+          options = lib.setAttrByPath loc (
             lib.optionalAttrs (!isBuiltin) {
               enable = lib.mkEnableOption "${originalName} applet";
               package = lib.mkPackageOption pkgs package {
@@ -54,7 +54,8 @@
                 options = settingsOptions;
               };
             }
-            // extraOptions;
+            // extraOptions
+          );
 
           config =
             let

@@ -35,7 +35,7 @@
           opts = lib.getAttrFromPath loc options;
         in
         {
-          options.programs.${name} =
+          options = lib.setAttrByPath loc (
             {
               enable = lib.mkEnableOption originalName;
               package = lib.mkPackageOption pkgs package {
@@ -50,7 +50,8 @@
                 options = settingsOptions;
               };
             }
-            // extraOptions;
+            // extraOptions
+          );
 
           config = lib.mkIf cfg.enable (
             lib.mkMerge [
