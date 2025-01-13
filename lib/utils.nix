@@ -139,53 +139,56 @@ in
     let
       mkRonExpression' =
         startIndent: value: previousType:
-        if builtins.isAttrs value then
-          let
-            indent = level: lib.strings.replicate level "  ";
+        let
+          nextIndent = startIndent + 1;
 
-            toRonExpression =
-              type: value:
-              if previousType == null then
-                ronExpression type value (indent startIndent)
-              else
-                let
-                  v = nestedRonExpression type value (indent startIndent);
-                in
-                if previousType == "namedStruct" then v else nestedLiteral "(${v.__pretty v.val})";
-          in
-          if isRonType value then
-            if value.__type == "enum" then
-              if value ? variant then
-                if value ? value then
-                  if isRonType value.value then
-                    toRonExpression "enum" {
-                      inherit (value) variant;
-                      value = mkRonExpression' startIndent value.value "enum";
-                    }
-                  else
-                    toRonExpression "enum" { inherit (value) value variant; }
-                else
-                  toRonExpression "enum" value.variant
-              else
-                throw "lib.cosmic.mkRonExpression: enum type must have at least a variant key."
-            else if value.__type == "namedStruct" then
-              if value ? name && value ? value then
-                toRonExpression "namedStruct" {
-                  inherit (value) name;
-                  value = builtins.mapAttrs (
-                    _: v: if isRonType v then mkRonExpression' startIndent v "namedStruct" else v
-                  ) value.value;
-                }
-              else
-                throw "lib.cosmic.mkRonExpression: namedStruct type must have name and value keys."
-            else if isRonType value.value then
-              toRonExpression value.__type (mkRonExpression' startIndent value.value value.__type)
+          indent = level: lib.strings.replicate level "  ";
+
+          toRonExpression =
+            type: value:
+            let
+              v = nestedRonExpression type value (indent startIndent);
+            in
+            if previousType == null || previousType == "namedStruct" then
+              v
             else
-              toRonExpression value.__type value.value
+              nestedLiteral "(${v.__pretty v.val})";
+        in
+        if isRonType value then
+          if value.__type == "enum" then
+            if value ? variant then
+              if value ? value then
+                if isRonType value.value then
+                  toRonExpression "enum" {
+                    inherit (value) variant;
+                    value = mkRonExpression' startIndent value.value "enum";
+                  }
+                else
+                  toRonExpression "enum" { inherit (value) value variant; }
+              else
+                toRonExpression "enum" value.variant
+            else
+              throw "lib.cosmic.mkRonExpression: enum type must have at least a variant key."
+          else if value.__type == "namedStruct" then
+            if value ? name && value ? value then
+              toRonExpression "namedStruct" {
+                inherit (value) name;
+                value = builtins.mapAttrs (
+                  _: v: if isRonType v then mkRonExpression' startIndent v "namedStruct" else v
+                ) value.value;
+              }
+            else
+              throw "lib.cosmic.mkRonExpression: namedStruct type must have name and value keys."
+          else if isRonType value.value then
+            toRonExpression value.__type (mkRonExpression' startIndent value.value value.__type)
           else
-            throw "lib.cosmic.mkRonExpression: value is not a valid Ron type."
+            toRonExpression value.__type value.value
+        else if builtins.isList value then
+          map (v: mkRonExpression' nextIndent v null) value
+        else if builtins.isAttrs value then
+          builtins.mapAttrs (_: v: mkRonExpression' nextIndent v null) value
         else
-          throw "lib.cosmic.mkRonExpression: expected an attribute set, got a ${builtins.typeOf value}";
+          value;
     in
     mkRonExpression';
 

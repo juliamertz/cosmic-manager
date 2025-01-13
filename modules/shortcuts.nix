@@ -6,9 +6,7 @@ let
     capitalizeWord
     cleanNullsExceptOptional
     defaultNullOpts
-    isRonType
     mkRonExpression
-    nestedLiteral
     rustToNixType
     ;
 in
@@ -131,14 +129,7 @@ in
             }
           ];
         in
-        lib.pipe shortcuts [
-          (map (
-            shortcut:
-            builtins.mapAttrs (
-              _: value: if isRonType value then nestedLiteral (mkRonExpression 2 value null) else value
-            ) shortcut
-          ))
-        ];
+        mkRonExpression 0 shortcuts null;
       description = ''
         Defines a list of custom shortcuts for the COSMIC desktop environment.
         Each shortcut specifies a key combination, the action to be performed, and optionally a description for a custom shortcut.

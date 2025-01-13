@@ -1,12 +1,7 @@
 # Heavily inspired by nixvim
 { lib, ... }:
 let
-  inherit (lib.cosmic)
-    isRonType
-    literalRon
-    mkRonExpression
-    nestedLiteral
-    ;
+  inherit (lib.cosmic) literalRon mkRonExpression;
 
   mkNullOrOption' =
     {
@@ -72,7 +67,7 @@ in
         args:
         mkNullOrOption' (
           processDefaultNullArgs args
-          // lib.optionalAttrs (args ? example && isRonType args.example) {
+          // lib.optionalAttrs (args ? example) {
             example = mkRonExpression 0 args.example null;
           }
         );
@@ -333,9 +328,8 @@ in
       default = { };
       example =
         if example == null then
-          builtins.mapAttrs
-            (_: value: if isRonType value then nestedLiteral (mkRonExpression 1 value null) else value)
-            {
+          let
+            ex = {
               bool = true;
               char = {
                 __type = "char";
@@ -393,11 +387,11 @@ in
                 variant = "FooBar";
                 value = [ "baz" ];
               };
-            }
+            };
+          in
+          mkRonExpression 0 ex null
         else
-          builtins.mapAttrs (
-            _: value: if isRonType value then nestedLiteral (mkRonExpression 1 value null) else value
-          ) example;
+          mkRonExpression 0 example null;
       inherit description;
     };
 }

@@ -1,11 +1,6 @@
 { config, lib, ... }:
 let
-  inherit (lib.cosmic)
-    defaultNullOpts
-    isRonType
-    mkRonExpression
-    nestedLiteral
-    ;
+  inherit (lib.cosmic) defaultNullOpts mkRonExpression;
 in
 {
   options.wayland.desktopManager.cosmic.panels =
@@ -245,14 +240,7 @@ in
             }
           ];
         in
-        lib.pipe panels [
-          (map (
-            panel:
-            builtins.mapAttrs (
-              _: value: if isRonType value then nestedLiteral (mkRonExpression 2 value null) else value
-            ) panel
-          ))
-        ];
+        mkRonExpression 0 panels null;
     };
 
   config =
