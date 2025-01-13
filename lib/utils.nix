@@ -173,9 +173,7 @@ in
             if value ? name && value ? value then
               toRonExpression "namedStruct" {
                 inherit (value) name;
-                value = builtins.mapAttrs (
-                  _: v: if isRonType v then mkRonExpression' startIndent v "namedStruct" else v
-                ) value.value;
+                value = builtins.mapAttrs (_: v: mkRonExpression' nextIndent v "namedStruct") value.value;
               }
             else
               throw "lib.cosmic.mkRonExpression: namedStruct type must have name and value keys."
