@@ -7,6 +7,16 @@ includes = ["*.nix"]
 command = "nixfmt"
 includes = ["*.nix"]
 
+[formatter.rustfmt]
+command = "rustfmt"
+options = ["--config", "skip_children=true", "--edition", "2021"]
+includes = ["*.rs"]
+
 [formatter.statix]
 command = "statix-fix"
 includes = ["*.nix"]
+
+[formatter.taplo]
+command = "taplo"
+options = ["format"]
+includes = ["*.toml"]

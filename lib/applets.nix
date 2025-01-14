@@ -81,11 +81,11 @@
                   ];
                 }
 
-                (lib.optionalAttrs (!isBuiltin) {
+                (lib.mkIf (!isBuiltin) {
                   home.packages = lib.optionals (cfg.package != null) [ cfg.package ];
                 })
 
-                (lib.optionalAttrs hasSettings {
+                (lib.mkIf hasSettings {
                   wayland.desktopManager.cosmic = {
                     configFile.${identifier} = {
                       entries = cfg.settings;
@@ -94,7 +94,7 @@
                   };
                 })
 
-                (lib.optionalAttrs (args ? extraConfig) (
+                (lib.mkIf (args ? extraConfig) (
                   lib.cosmic.modules.applyExtraConfig {
                     inherit
                       cfg

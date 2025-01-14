@@ -235,7 +235,7 @@
           ++ (makeOperations "state" cfg.stateFile);
       };
 
-      json = pkgs.writeText "configuration.json" (builtins.toJSON configurations);
+      json = (pkgs.formats.json { }).generate "configurations.json" configurations;
     in
     {
       assertions = [
@@ -245,24 +245,20 @@
         }
       ];
 
-      home = {
-        activation = lib.mkIf cfg.enable {
-          configure-cosmic = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-            run ${lib.getExe pkgs.cosmic-ext-ctl} apply ${json}
-          '';
+      home.activation = lib.mkIf cfg.enable {
+        configure-cosmic = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          run ${lib.getExe pkgs.cosmic-ext-ctl} apply ${json}
+        '';
 
-          reset-cosmic = lib.mkIf cfg.resetFiles (
-            lib.hm.dag.entryBefore [ "configure-cosmic" ] ''
-              run ${lib.getExe pkgs.cosmic-ext-ctl} reset --force --xdg-dirs ${builtins.concatStringsSep "," cfg.resetFilesDirectories} ${
-                lib.optionalString (
-                  builtins.length cfg.resetFilesExclude > 0
-                ) "--exclude ${builtins.concatStringsSep "," cfg.resetFilesExclude}"
-              }
-            ''
-          );
-        };
-
-        packages = lib.optionals cfg.enable [ pkgs.cosmic-ext-ctl ];
+        reset-cosmic = lib.mkIf cfg.resetFiles (
+          lib.hm.dag.entryBefore [ "configure-cosmic" ] ''
+            run ${lib.getExe pkgs.cosmic-ext-ctl} reset --force --xdg-dirs ${builtins.concatStringsSep "," cfg.resetFilesDirectories} ${
+              lib.optionalString (
+                builtins.length cfg.resetFilesExclude > 0
+              ) "--exclude ${builtins.concatStringsSep "," cfg.resetFilesExclude}"
+            }
+          ''
+        );
       };
     };
 }
