@@ -4,7 +4,7 @@ use crate::{
     utils::to_nix_expression,
 };
 use clap::Args;
-use std::{collections::HashMap, io::Error};
+use std::{collections::HashMap, fs, io::Error, path::PathBuf};
 use walkdir::WalkDir;
 
 #[derive(Args)]
@@ -12,6 +12,8 @@ pub struct Cosmic2NixCommand {
     /// The XDG directories to search for COSMIC configurations.
     #[arg(short, long, value_delimiter = ',', default_value = "config,state")]
     xdg_dirs: Vec<String>,
+
+    output_file: Option<PathBuf>,
 }
 
 struct ComponentData {
@@ -23,15 +25,19 @@ impl Command for Cosmic2NixCommand {
     type Err = Error;
 
     fn execute(&self) -> Result<(), Self::Err> {
-        println!("{{ cosmicLib, ... }}: ");
-        println!("{{");
-        println!("  wayland.desktopManager.cosmic = {{");
-        println!("    enable = true;");
+        let mut output = String::new();
+
+        output.push_str("{ cosmicLib, ... }:\n");
+        output.push_str("{\n");
+        output.push_str("  wayland.desktopManager.cosmic = {\n");
+        output.push_str("    enable = true;\n");
+
         for xdg_dir in &self.xdg_dirs {
             let cosmic_path = get_cosmic_configurations(xdg_dir)?;
             let mut components: HashMap<String, ComponentData> = HashMap::new();
 
-            println!("    {}File = {{", xdg_dir);
+            output.push_str(&format!("    {}File = {{\n", xdg_dir));
+
             for entry in WalkDir::new(&cosmic_path)
                 .into_iter()
                 .filter_map(|e| e.ok())
@@ -59,20 +65,38 @@ impl Command for Cosmic2NixCommand {
             }
 
             for (component_name, component_data) in components {
-                println!("      \"{}\" = {{", component_name);
-                println!("        version = {};", component_data.version);
-                println!("        entries = {{");
+                output.push_str(&format!("      \"{}\" = {{\n", component_name));
+                output.push_str(&format!("        version = {};\n", component_data.version));
+                output.push_str("        entries = {\n");
+
+                let mut formatted_entries = String::new();
                 for (entry_name, content) in component_data.entries {
-                    to_nix_expression(&entry_name, &content, "          ");
+                    formatted_entries.push_str(&to_nix_expression(
+                        &entry_name,
+                        &content,
+                        "          ",
+                    ));
                 }
-                println!("        }};");
-                println!("      }};");
+                output.push_str(&formatted_entries);
+
+                output.push_str("        };\n");
+                output.push_str("      };\n");
             }
 
-            println!("    }};");
+            output.push_str("    };\n");
         }
-        println!("  }};");
-        println!("}}");
+        output.push_str("  };\n");
+        output.push_str("}\n");
+
+        match &self.output_file {
+            Some(path) => {
+                fs::write(path, output)?;
+                println!("Wrote COSMIC configuration to {}", path.display());
+            }
+            None => {
+                println!("{}", output);
+            }
+        }
 
         Ok(())
     }

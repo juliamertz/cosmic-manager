@@ -1,6 +1,6 @@
 use fancy_regex::Regex;
 
-pub fn to_nix_expression(entry: &str, input: &str, indent: &str) {
+pub fn to_nix_expression(entry: &str, input: &str, indent: &str) -> String {
     let bool_pattern = Regex::new(r"^(true|false)$").unwrap();
     let char_pattern = Regex::new(r"^'\w'$").unwrap();
     let float_pattern = Regex::new(r"^-?\d+\.\d+$").unwrap();
@@ -13,17 +13,17 @@ pub fn to_nix_expression(entry: &str, input: &str, indent: &str) {
         || float_pattern.is_match(input).unwrap_or(false)
         || int_pattern.is_match(input).unwrap_or(false)
     {
-        println!("{}{} = {};", indent, entry, escaped_input);
+        return format!("{}{} = {};\n", indent, entry, escaped_input);
     } else if char_pattern.is_match(input).unwrap_or(false) {
-        println!(
-            "{}{} = cosmicLib.cosmic.mkRon \"char\" \"{}\";",
+        return format!(
+            "{}{} = cosmicLib.cosmic.mkRon \"char\" \"{}\";\n",
             indent, entry, escaped_input
-        )
+        );
     } else if str_pattern.is_match(input).unwrap_or(false) {
-        println!("{}{} = \"{}\";", indent, entry, escape_string(input));
+        return format!("{}{} = \"{}\";\n", indent, entry, escape_string(input));
     } else {
-        println!(
-            "{}{} = cosmicLib.cosmic.mkRon \"raw\" \"{}\";",
+        return format!(
+            "{}{} = cosmicLib.cosmic.mkRon \"raw\" \"{}\";\n",
             indent, entry, escaped_input
         );
     }
