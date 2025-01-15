@@ -72,7 +72,7 @@ impl Command for Cosmic2NixCommand {
                 let mut formatted_entries = String::new();
                 for (entry_name, content) in component_data.entries {
                     formatted_entries.push_str(&to_nix_expression(
-                        &entry_name,
+                        Some(&entry_name),
                         &content,
                         "          ",
                     ));

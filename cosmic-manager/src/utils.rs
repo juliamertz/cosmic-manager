@@ -1,6 +1,6 @@
 use fancy_regex::Regex;
 
-pub fn to_nix_expression(entry: &str, input: &str, indent: &str) -> String {
+pub fn to_nix_expression(entry: Option<&str>, input: &str, indent: &str) -> String {
     let bool_pattern = Regex::new(r"^(true|false)$").unwrap();
     let char_pattern = Regex::new(r"^'\w'$").unwrap();
     let float_pattern = Regex::new(r"^-?\d+\.\d+$").unwrap();
@@ -9,23 +9,30 @@ pub fn to_nix_expression(entry: &str, input: &str, indent: &str) -> String {
 
     let escaped_input = escape_string(input);
 
+    let format_with_entry = |value: String| -> String {
+        match entry {
+            Some(e) => format!("{}{} = {};\n", indent, e, value),
+            None => value,
+        }
+    };
+
     if bool_pattern.is_match(input).unwrap_or(false)
         || float_pattern.is_match(input).unwrap_or(false)
         || int_pattern.is_match(input).unwrap_or(false)
     {
-        return format!("{}{} = {};\n", indent, entry, escaped_input);
+        format_with_entry(escaped_input)
     } else if char_pattern.is_match(input).unwrap_or(false) {
-        return format!(
-            "{}{} = cosmicLib.cosmic.mkRon \"char\" \"{}\";\n",
-            indent, entry, escaped_input
-        );
+        format_with_entry(format!(
+            "cosmicLib.cosmic.mkRon \"char\" \"{}\"",
+            escaped_input
+        ))
     } else if str_pattern.is_match(input).unwrap_or(false) {
-        return format!("{}{} = \"{}\";\n", indent, entry, escape_string(input));
+        format_with_entry(format!("\"{}\"", escaped_input))
     } else {
-        return format!(
-            "{}{} = cosmicLib.cosmic.mkRon \"raw\" \"{}\";\n",
-            indent, entry, escaped_input
-        );
+        format_with_entry(format!(
+            "cosmicLib.cosmic.mkRon \"raw\" \"{}\"",
+            escaped_input
+        ))
     }
 }
 
