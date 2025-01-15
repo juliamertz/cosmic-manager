@@ -1,9 +1,10 @@
 use crate::{
     commands::Command,
     config::{get_cosmic_configurations, parse_configuration_path, read_configuration},
-    utils::to_nix_expression,
+    utils::escape_string,
 };
 use clap::Args;
+use fancy_regex::Regex;
 use std::{collections::HashMap, fs, io::Error, path::PathBuf};
 use walkdir::WalkDir;
 
@@ -99,5 +100,44 @@ impl Command for Cosmic2NixCommand {
         }
 
         Ok(())
+    }
+}
+
+fn to_nix_expression(entry: Option<&str>, input: &str, indent: &str) -> String {
+    let bool_pattern = Regex::new(r"^(true|false)$").unwrap();
+    let char_pattern = Regex::new(r"^'\w'$").unwrap();
+    let float_pattern = Regex::new(r"^-?\d+\.\d+$").unwrap();
+    let int_pattern = Regex::new(r"^-?\d+$").unwrap();
+    let none_pattern = Regex::new(r"^None$").unwrap();
+    let str_pattern = Regex::new(r#"^".*"$"#).unwrap();
+
+    let escaped_input = escape_string(input);
+
+    let format_with_entry = |value: String| -> String {
+        match entry {
+            Some(e) => format!("{}{} = {};\n", indent, e, value),
+            None => value,
+        }
+    };
+
+    if bool_pattern.is_match(input).unwrap_or(false)
+        || float_pattern.is_match(input).unwrap_or(false)
+        || int_pattern.is_match(input).unwrap_or(false)
+    {
+        format_with_entry(escaped_input)
+    } else if char_pattern.is_match(input).unwrap_or(false) {
+        format_with_entry(format!(
+            "cosmicLib.cosmic.mkRon \"char\" \"{}\"",
+            escaped_input
+        ))
+    } else if none_pattern.is_match(input).unwrap_or(false) {
+        format_with_entry("cosmicLib.cosmic.mkRon \"optional\" null".to_string())
+    } else if str_pattern.is_match(input).unwrap_or(false) {
+        format_with_entry(format!("\"{}\"", escaped_input))
+    } else {
+        format_with_entry(format!(
+            "cosmicLib.cosmic.mkRon \"raw\" \"{}\"",
+            escaped_input
+        ))
     }
 }
