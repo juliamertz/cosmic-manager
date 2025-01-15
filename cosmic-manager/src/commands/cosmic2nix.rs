@@ -76,6 +76,7 @@ impl Command for Cosmic2NixCommand {
                         Some(&entry_name),
                         &content,
                         "          ",
+                        None,
                     ));
                 }
                 output.push_str(&formatted_entries);
@@ -103,15 +104,25 @@ impl Command for Cosmic2NixCommand {
     }
 }
 
-fn to_nix_expression(entry: Option<&str>, input: &str, indent: &str) -> String {
+fn to_nix_expression(
+    entry: Option<&str>,
+    input: &str,
+    indent: &str,
+    prev_type: Option<&str>,
+) -> String {
     let bool_pattern = Regex::new(r"^(true|false)$").unwrap();
     let char_pattern = Regex::new(r"^'\w'$").unwrap();
     let float_pattern = Regex::new(r"^-?\d+\.\d+$").unwrap();
     let int_pattern = Regex::new(r"^-?\d+$").unwrap();
     let none_pattern = Regex::new(r"^None$").unwrap();
+    let some_pattern = Regex::new(r#"^Some\((.*)\)$"#).unwrap();
     let str_pattern = Regex::new(r#"^".*"$"#).unwrap();
 
-    let escaped_input = escape_string(input);
+    let escaped_input = if let Some(_) = prev_type {
+        input.to_string()
+    } else {
+        escape_string(input)
+    };
 
     let format_with_entry = |value: String| -> String {
         match entry {
@@ -120,24 +131,51 @@ fn to_nix_expression(entry: Option<&str>, input: &str, indent: &str) -> String {
         }
     };
 
-    if bool_pattern.is_match(input).unwrap_or(false)
+    let wrap_value = |value: String| -> String {
+        match prev_type {
+            None => value,
+            _ => format!("({})", value),
+        }
+    };
+
+    let process_some_value = |inner: &str| -> String {
+        let inner_value = inner.trim();
+        // Recursively process the inner value
+        let processed_inner = to_nix_expression(None, inner_value, indent, Some("optional"));
+        format!(
+            "cosmicLib.cosmic.mkRon \"optional\" {}",
+            processed_inner.trim()
+        )
+    };
+
+    if let Ok(Some(captures)) = some_pattern.captures(&escaped_input) {
+        if let Some(inner) = captures.get(1) {
+            format_with_entry(wrap_value(process_some_value(inner.as_str())))
+        } else {
+            format_with_entry(wrap_value(format!(
+                "cosmicLib.cosmic.mkRon \"optional\" null"
+            )))
+        }
+    } else if bool_pattern.is_match(input).unwrap_or(false)
         || float_pattern.is_match(input).unwrap_or(false)
         || int_pattern.is_match(input).unwrap_or(false)
     {
         format_with_entry(escaped_input)
     } else if char_pattern.is_match(input).unwrap_or(false) {
-        format_with_entry(format!(
+        format_with_entry(wrap_value(format!(
             "cosmicLib.cosmic.mkRon \"char\" \"{}\"",
             escaped_input
-        ))
+        )))
     } else if none_pattern.is_match(input).unwrap_or(false) {
-        format_with_entry("cosmicLib.cosmic.mkRon \"optional\" null".to_string())
+        format_with_entry(wrap_value(
+            "cosmicLib.cosmic.mkRon \"optional\" null".to_string(),
+        ))
     } else if str_pattern.is_match(input).unwrap_or(false) {
         format_with_entry(format!("\"{}\"", escaped_input))
     } else {
-        format_with_entry(format!(
+        format_with_entry(wrap_value(format!(
             "cosmicLib.cosmic.mkRon \"raw\" \"{}\"",
             escaped_input
-        ))
+        )))
     }
 }
