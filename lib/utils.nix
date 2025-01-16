@@ -98,7 +98,7 @@ in
         else
           {
             __type = "enum";
-            inherit value;
+            variant = value;
           };
       map = {
         __type = "map";
