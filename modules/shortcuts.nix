@@ -3,7 +3,6 @@ let
   cfg = config.wayland.desktopManager.cosmic;
 
   inherit (lib.cosmic)
-    capitalizeWord
     cleanNullsExceptOptional
     defaultNullOpts
     mkRonExpression
