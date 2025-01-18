@@ -104,6 +104,85 @@
               ''
                 The workspaces configuration for the COSMIC compositor.
               '';
+
+          xkb_config =
+            let
+              xkbConfigSubmodule = lib.types.submodule {
+                freeformType = with lib.types; attrsOf cosmicEntryValue;
+                options = {
+                  layout = lib.mkOption {
+                    type = with lib.types; maybeRonRaw str;
+                    example = "br";
+                    description = ''
+                      The keyboard layout.
+                    '';
+                  };
+
+                  model = lib.mkOption {
+                    type = with lib.types; maybeRonRaw str;
+                    example = "pc104";
+                    description = ''
+                      The keyboard model.
+                    '';
+                  };
+
+                  options = lib.mkOption {
+                    type = with lib.types; maybeRonRaw (ronOptionalOf (maybeRonRaw str));
+                    example = "terminate:ctrl_alt_bksp";
+                    description = ''
+                      The keyboard options.
+                    '';
+                  };
+
+                  repeat_delay = lib.mkOption {
+                    type = with lib.types; maybeRonRaw ints.u32;
+                    example = 600;
+                    description = ''
+                      The keyboard repeat delay.
+                    '';
+                  };
+
+                  repeat_rate = lib.mkOption {
+                    type = with lib.types; maybeRonRaw ints.u32;
+                    example = 25;
+                    description = ''
+                      The keyboard repeat rate.
+                    '';
+                  };
+
+                  rules = lib.mkOption {
+                    type = with lib.types; maybeRonRaw str;
+                    description = ''
+                      The keyboard rules.
+                    '';
+                  };
+
+                  variant = lib.mkOption {
+                    type = with lib.types; maybeRonRaw str;
+                    example = "dvorak";
+                    description = ''
+                      The keyboard variant.
+                    '';
+                  };
+                };
+              };
+            in
+            defaultNullOpts.mkNullable xkbConfigSubmodule
+              {
+                layout = "br";
+                model = "pc104";
+                options = {
+                  __type = "optional";
+                  value = "terminate:ctrl_alt_bksp";
+                };
+                repeat_delay = 600;
+                repeat_rate = 25;
+                rules = "";
+                variant = "dvorak";
+              }
+              ''
+                The keyboard configuration for the COSMIC compositor.
+              '';
         };
       };
       default = { };
@@ -127,6 +206,18 @@
             __type = "enum";
             variant = "OutputBound";
           };
+        };
+        xkb_config = {
+          layout = "br";
+          model = "pc104";
+          options = {
+            __type = "optional";
+            value = "terminate:ctrl_alt_bksp";
+          };
+          repeat_delay = 600;
+          repeat_rate = 25;
+          rules = "";
+          variant = "dvorak";
         };
       } null;
       description = ''
