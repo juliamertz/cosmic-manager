@@ -1424,7 +1424,7 @@
 
         (lib.mkIf (cfg.appearance.toolkit != { }) {
           "com.system76.CosmicTk" = {
-            entries = cfg.toolkit;
+            entries = cfg.appearance.toolkit;
             inherit version;
           };
         })
