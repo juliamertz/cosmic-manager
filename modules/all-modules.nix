@@ -9,6 +9,7 @@ in
   ./files.nix
   ./panels.nix
   ./shortcuts.nix
+  ./wallpapers.nix
 ]
 ++ lib.foldlAttrs (
   prev: name: type:
