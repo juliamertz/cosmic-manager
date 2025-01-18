@@ -1422,7 +1422,7 @@
           };
         })
 
-        (lib.mkIf (cfg.toolkit != { }) {
+        (lib.mkIf (cfg.appearance.toolkit != { }) {
           "com.system76.CosmicTk" = {
             entries = cfg.toolkit;
             inherit version;
