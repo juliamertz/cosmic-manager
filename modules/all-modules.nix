@@ -8,6 +8,7 @@ in
   ./appearance.nix
   ./compositor.nix
   ./files.nix
+  ./idle.nix
   ./panels.nix
   ./shortcuts.nix
   ./wallpapers.nix
