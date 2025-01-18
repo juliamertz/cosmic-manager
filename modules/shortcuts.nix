@@ -127,6 +127,19 @@ in
                 value = [ "BrightnessDown" ];
               };
             }
+            {
+              key = "Super";
+              action = {
+                __type = "enum";
+                variant = "System";
+                value = [
+                  {
+                    __type = "enum";
+                    variant = "Launcher";
+                  }
+                ];
+              };
+            }
           ];
         in
         mkRonExpression 0 shortcuts null;
@@ -141,47 +154,36 @@ in
       parseShortcuts =
         key:
         let
-          parts = lib.pipe key [
-            (lib.splitString "+")
-            (builtins.filter (x: x != ""))
-          ];
-
           validModifiers = [
             "Alt"
             "Ctrl"
             "Shift"
             "Super"
           ];
+
+          isModifier = part: builtins.elem part validModifiers;
+
+          parts = lib.pipe key [
+            (lib.splitString "+")
+            (builtins.filter (x: x != ""))
+          ];
+
+          init = lib.init parts;
+          last = lib.last parts;
         in
         {
           key =
-            let
-              last = lib.last parts;
-            in
-            if builtins.stringLength last == 1 then
+            if builtins.all isModifier parts then
+              null
+            else if builtins.stringLength last == 1 then
               lib.toLower last
-            else if builtins.elem (capitalizeWord last) validModifiers then
-              throw "Key cannot be a modifier"
             else
               last;
-          modifiers =
-            map
-              (
-                modifier:
-                if builtins.elem modifier validModifiers then
-                  {
-                    __type = "enum";
-                    variant = modifier;
-                  }
-                else
-                  throw "Invalid modifier: ${modifier}. Valid modifiers are: ${builtins.concatStringsSep ", " validModifiers}"
-              )
-              (
-                lib.pipe parts [
-                  lib.init
-                  lib.unique
-                ]
-              );
+
+          modifiers = map (modifier: {
+            __type = "enum";
+            variant = modifier;
+          }) (lib.unique (if builtins.all isModifier parts then parts else init));
         };
     in
     lib.mkIf (cfg.shortcuts != [ ]) {
