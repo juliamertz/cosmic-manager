@@ -76,7 +76,7 @@
               value = [
                 {
                   __type = "tuple";
-                  variant = [
+                  value = [
                     0.5
                     1.0
                     {
@@ -187,7 +187,7 @@
           source = {
             __type = "enum";
             variant = "Path";
-            value = "/path/to/wallpaper.png";
+            value = [ "/path/to/wallpaper.png" ];
           };
           filter_by_theme = true;
           filter_method = {
@@ -200,7 +200,7 @@
             value = [
               {
                 __type = "tuple";
-                variant = [
+                value = [
                   0.5
                   1.0
                   {

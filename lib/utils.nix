@@ -158,13 +158,10 @@ in
           if value.__type == "enum" then
             if value ? variant then
               if value ? value then
-                if isRonType value.value then
-                  toRonExpression "enum" {
-                    inherit (value) variant;
-                    value = mkRonExpression' startIndent value.value "enum";
-                  }
-                else
-                  toRonExpression "enum" { inherit (value) value variant; }
+                toRonExpression "enum" {
+                  inherit (value) variant;
+                  value = map (v: mkRonExpression' (nextIndent + 1) v "enum") value.value;
+                }
               else
                 toRonExpression "enum" value.variant
             else

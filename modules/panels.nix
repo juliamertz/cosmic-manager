@@ -119,7 +119,7 @@ in
               {
                 __type = "enum";
                 variant = "Name";
-                value = "Virtual-1";
+                value = [ "Virtual-1" ];
               }
               ''
                 The output(s) the panel should be displayed on.
@@ -207,7 +207,7 @@ in
               output = {
                 __type = "enum";
                 variant = "Name";
-                value = "Virtual-1";
+                value = [ "Virtual-1" ];
               };
               plugins_center = {
                 __type = "optional";
