@@ -562,11 +562,12 @@ in
               } with a value";
           descriptionClass = if builtins.length variants < 2 then "noun" else "conjunction";
           functor = lib.defaultFunctor name // {
-            payload = {
-              inherit variants;
+            payload = { inherit size variants; };
+            type = payload: ronTupleEnum' payload.variants payload.size;
+            binOp = a: b: {
+              variants = lib.unique (a.variants + b.variants);
+              size = if a.size == b.size then a.size else throw "The tuple sizes do not match.";
             };
-            type = payload: ronTupleEnum' payload.variants;
-            binOp = a: b: { variants = lib.unique (a.variants + b.variants); };
           };
           merge = lib.options.mergeEqualOption;
           inherit name;
