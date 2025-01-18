@@ -6,6 +6,7 @@ let
 in
 [
   ./appearance.nix
+  ./compositor.nix
   ./files.nix
   ./panels.nix
   ./shortcuts.nix
