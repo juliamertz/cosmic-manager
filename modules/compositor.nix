@@ -619,7 +619,7 @@
       '';
     };
 
-  config.wayland.desktopManager.configFile.cosmic."com.system76.CosmicComp" =
+  config.wayland.desktopManager.cosmic.configFile."com.system76.CosmicComp" =
     let
       cfg = config.wayland.desktopManager.cosmic;
     in
