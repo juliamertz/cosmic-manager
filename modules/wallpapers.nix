@@ -249,25 +249,27 @@
         }
       ];
 
-      wayland.desktopManager.cosmic.configFile."com.system76.CosmicBackground" = {
-        entries =
-          if hasAllWallpaper then
-            {
-              all = builtins.head cfg.wallpapers;
-              same-on-all = true;
-            }
-          else
-            {
-              backgrounds = map (wallpaper: wallpaper.output) cfg.wallpapers;
-              same-on-all = false;
-            }
-            // builtins.listToAttrs (
-              map (wallpaper: {
-                name = "output.${wallpaper.output}";
-                value = wallpaper;
-              }) cfg.wallpapers
-            );
-        version = 1;
-      };
+      wayland.desktopManager.cosmic.configFile."com.system76.CosmicBackground" =
+        lib.mkIf (cfg.wallpapers != [ ])
+          {
+            entries =
+              if hasAllWallpaper then
+                {
+                  all = builtins.head cfg.wallpapers;
+                  same-on-all = true;
+                }
+              else
+                {
+                  backgrounds = map (wallpaper: wallpaper.output) cfg.wallpapers;
+                  same-on-all = false;
+                }
+                // builtins.listToAttrs (
+                  map (wallpaper: {
+                    name = "output.${wallpaper.output}";
+                    value = wallpaper;
+                  }) cfg.wallpapers
+                );
+            version = 1;
+          };
     };
 }
