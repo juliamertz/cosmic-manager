@@ -95,6 +95,7 @@ in
 
       mkRonArrayOf' =
         { size, type, ... }@args:
+        assert lib.assertMsg (builtins.isInt size) "mkRonArrayOf': `size` must be an integer";
         mkNullableWithRaw' (
           builtins.removeAttrs args [ "size" ]
           // {
@@ -129,27 +130,53 @@ in
         { type, ... }@args:
         mkNullableWithRaw' (args // { type = with lib.types; ronOptionalOf (maybeRonRaw type); });
 
-      mkRonTuple' = args: mkNullableWithRaw' (args // { type = lib.types.ronTuple; });
+      mkRonTuple' =
+        { size, ... }@args:
+        assert lib.assertMsg (builtins.isInt size) "mkRonTuple': `size` must be an integer";
+        mkNullableWithRaw' (builtins.removeAttrs args [ "size" ] // { type = lib.types.ronTuple size; });
 
       mkRonTupleEnum' =
-        { variants, ... }@args:
+        { size, variants, ... }@args:
         assert lib.assertMsg (builtins.isList variants) "mkRonTupleEnum': `variants` must be a list";
+        assert lib.assertMsg (builtins.isInt size) "mkRonTupleEnum': `size` must be an integer";
         mkNullableWithRaw' (
-          builtins.removeAttrs args [ "variants" ] // { type = lib.types.ronTupleEnum variants; }
+          builtins.removeAttrs args [
+            "size"
+            "variants"
+          ]
+          // {
+            type = lib.types.ronTupleEnum variants size;
+          }
         );
 
       mkRonTupleEnumOf' =
-        { type, variants, ... }@args:
+        {
+          size,
+          type,
+          variants,
+          ...
+        }@args:
+        assert lib.assertMsg (builtins.isList variants) "mkRonTupleEnumOf': `variants` must be a list";
+        assert lib.assertMsg (builtins.isInt size) "mkRonTupleEnumOf': `size` must be an integer";
         mkNullableWithRaw' (
-          builtins.removeAttrs args [ "variants" ]
+          builtins.removeAttrs args [
+            "size"
+            "variants"
+          ]
           // {
-            type = with lib.types; ronTupleEnumOf (maybeRonRaw type) variants;
+            type = with lib.types; ronTupleEnumOf (maybeRonRaw type) variants size;
           }
         );
 
       mkRonTupleOf' =
-        { type, ... }@args:
-        mkNullableWithRaw' (args // { type = with lib.types; ronTupleOf (maybeRonRaw type); });
+        { size, type, ... }@args:
+        assert lib.assertMsg (builtins.isInt size) "mkRonTupleOf': `size` must be an integer";
+        mkNullableWithRaw' (
+          builtins.removeAttrs args [ "size" ]
+          // {
+            type = with lib.types; ronTupleOf (maybeRonRaw type) size;
+          }
+        );
 
       mkPositiveInt' = args: mkNullableWithRaw' (args // { type = lib.types.ints.positive; });
 
@@ -276,26 +303,43 @@ in
         type: example: description:
         mkRonOptionalOf' { inherit description example type; };
 
-      mkRonTuple = example: description: mkRonTuple' { inherit description example; };
+      mkRonTuple =
+        size: example: description:
+        mkRonTuple' { inherit description example size; };
 
       mkRonTupleEnum =
-        variants: example: description:
-        mkRonTupleEnum' { inherit description example variants; };
+        variants: size: example: description:
+        mkRonTupleEnum' {
+          inherit
+            description
+            example
+            size
+            variants
+            ;
+        };
 
       mkRonTupleEnumOf =
-        type: variants: example: description:
+        type: variants: size: example: description:
         mkRonTupleEnumOf' {
           inherit
             description
             example
+            size
             type
             variants
             ;
         };
 
       mkRonTupleOf =
-        type: example: description:
-        mkRonTupleOf' { inherit description example type; };
+        type: size: example: description:
+        mkRonTupleOf' {
+          inherit
+            description
+            example
+            size
+            type
+            ;
+        };
 
       mkPositiveInt = example: description: mkPositiveInt' { inherit description example; };
 

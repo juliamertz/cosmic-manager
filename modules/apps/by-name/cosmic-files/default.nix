@@ -71,7 +71,7 @@ lib.cosmic.applications.mkCosmicApplication {
             "Music"
             "Pictures"
             "Videos"
-          ]) (ronTupleEnumOf lib.types.str [ "Path" ])
+          ]) (ronTupleEnumOf lib.types.str [ "Path" ] 1)
         )
         [
           {

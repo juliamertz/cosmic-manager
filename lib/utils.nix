@@ -237,9 +237,9 @@ in
             in
             if innerTypes != null then
               if builtins.length innerTypes == 1 then
-                lib.types.ronTupleOf (rustToNixType' (builtins.head innerTypes))
+                lib.types.ronTupleOf (rustToNixType' (builtins.head innerTypes)) 1
               else
-                with lib.types; ronTupleOf (oneOf (map rustToNixType' innerTypes))
+                with lib.types; ronTupleOf (oneOf (map rustToNixType' innerTypes)) (builtins.length innerTypes)
             else
               null;
           handleMap =

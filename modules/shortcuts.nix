@@ -65,7 +65,7 @@ in
                               else
                                 rustToNixType type;
                           in
-                          ronTupleEnumOf elemType names
+                          ronTupleEnumOf elemType names 1
                         )
                         (
                           lib.pipe generatedActions [

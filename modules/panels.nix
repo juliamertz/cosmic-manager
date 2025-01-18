@@ -81,7 +81,7 @@ in
                   "Dark"
                   "Light"
                   "ThemeDefault"
-                ]) (ronTupleEnumOf (ronArrayOf float 3) [ "Color" ])
+                ]) (ronTupleEnumOf (ronTupleOf float 3) [ "Color" ] 1)
               )
               {
                 __type = "enum";
@@ -114,7 +114,7 @@ in
                 either (ronEnum [
                   "Active"
                   "All"
-                ]) (ronTupleEnumOf str [ "Name" ])
+                ]) (ronTupleEnumOf str [ "Name" ] 1)
               )
               {
                 __type = "enum";
@@ -136,7 +136,7 @@ in
               '';
 
           plugins_wings =
-            defaultNullOpts.mkRonOptionalOf (with lib.types; ronTupleOf (listOf str))
+            defaultNullOpts.mkRonOptionalOf (with lib.types; ronTupleOf (listOf str) 2)
               {
                 __type = "optional";
                 value = {

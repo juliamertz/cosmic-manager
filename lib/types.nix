@@ -67,7 +67,6 @@ in
       (ronMapOf anything)
       (ronNamedStructOf anything)
       (ronOptionalOf anything)
-      (ronTupleOf anything)
       str
     ]);
 
@@ -126,39 +125,39 @@ in
           name = "ronEnum";
           show = v: ''"${v}"'';
         in
-        if !builtins.all (value: builtins.isString value) variants then
-          throw "All values in the enum must be strings."
-        else
-          lib.mkOptionType {
-            check =
-              value:
-              let
-                keys = builtins.attrNames value;
-              in
-              builtins.isAttrs value
-              &&
-                [
-                  "__type"
-                  "variant"
-                ] == keys
-              && value.__type == "enum"
-              && builtins.elem value.variant variants;
-            description =
-              if variants == [ ] then
-                "impossible (empty RON enum)"
-              else if builtins.length variants == 1 then
-                "RON enum variant ${show (builtins.head variants)} (singular RON enum)"
-              else
-                "one of the following RON enum variants: ${lib.concatMapStringsSep ", " show variants}";
-            descriptionClass = if builtins.length variants < 2 then "noun" else "conjunction";
-            functor = lib.defaultFunctor name // {
-              payload = { inherit variants; };
-              type = payload: ronEnum' payload.variants;
-              binOp = a: b: { variants = lib.unique (a.variants + b.variants); };
-            };
-            merge = lib.options.mergeEqualOption;
-            inherit name;
+        assert lib.assertMsg (builtins.all (
+          value: builtins.isString value
+        ) variants) "All variants in the enum must be strings.";
+        lib.mkOptionType {
+          check =
+            value:
+            let
+              keys = builtins.attrNames value;
+            in
+            builtins.isAttrs value
+            &&
+              [
+                "__type"
+                "variant"
+              ] == keys
+            && value.__type == "enum"
+            && builtins.elem value.variant variants;
+          description =
+            if variants == [ ] then
+              "impossible (empty RON enum)"
+            else if builtins.length variants == 1 then
+              "RON enum variant ${show (builtins.head variants)} (singular RON enum)"
+            else
+              "one of the following RON enum variants: ${lib.concatMapStringsSep ", " show variants}";
+          descriptionClass = if builtins.length variants < 2 then "noun" else "conjunction";
+          functor = lib.defaultFunctor name // {
+            payload = { inherit variants; };
+            type = payload: ronEnum' payload.variants;
+            binOp = a: b: { variants = lib.unique (a.variants + b.variants); };
           };
+          merge = lib.options.mergeEqualOption;
+          inherit name;
+        };
     in
     ronEnum';
 
@@ -474,191 +473,14 @@ in
     in
     ronOptionalOf';
 
-  ronTuple = lib.mkOptionType {
-    check =
-      value:
-      let
-        keys = builtins.attrNames value;
-      in
-      builtins.isAttrs value
-      &&
-        [
-          "__type"
-          "value"
-        ] == keys
-      && value.__type == "tuple"
-      && builtins.isList value.value;
-    description = "RON tuple";
-    descriptionClass = "noun";
-    emptyValue = {
-      value = {
-        __type = "tuple";
-        value = [ ];
-      };
-    };
-    merge = _loc: defs: {
-      __type = "tuple";
-      value = builtins.concatLists (map (x: x.value.value) defs);
-    };
-    name = "ronTuple";
-  };
-
-  ronTupleEnum =
+  ronTuple =
     let
-      ronTupleEnum' =
+      ronTuple' =
+        size:
         let
-          name = "ronTupleEnum";
-          show = v: ''"${v}"'';
+          name = "ronTuple";
         in
-        variants:
-        if !builtins.all (value: builtins.isString value) variants then
-          throw "All variants in the enum must be strings."
-        else
-          lib.mkOptionType {
-            check =
-              value:
-              let
-                keys = builtins.attrNames value;
-              in
-              builtins.isAttrs value
-              &&
-                [
-                  "__type"
-                  "value"
-                  "variant"
-                ] == keys
-              && value.__type == "enum"
-              && builtins.elem value.variant variants
-              && builtins.isList value.value;
-            description =
-              if variants == [ ] then
-                "impossible (empty RON tuple enum)"
-              else if builtins.length variants == 1 then
-                "RON enum variant ${show (builtins.head variants)} with a value (singular RON tuple enum)"
-              else
-                "one of the following RON tuple enum variants: ${
-                  lib.concatMapStringsSep ", " show variants
-                } with a value";
-            descriptionClass = if builtins.length variants < 2 then "noun" else "conjunction";
-            functor = lib.defaultFunctor name // {
-              payload = {
-                inherit variants;
-              };
-              type = payload: ronTupleEnum' payload.variants;
-              binOp = a: b: { variants = lib.unique (a.variants + b.variants); };
-            };
-            merge = lib.options.mergeEqualOption;
-            inherit name;
-          };
-    in
-    ronTupleEnum';
-
-  ronTupleEnumOf =
-    let
-      ronTupleEnumOf' =
-        let
-          name = "ronTupleEnumOf";
-          show = v: ''"${v}"'';
-        in
-        elemType: variants:
-        if !builtins.all (value: builtins.isString value) variants then
-          throw "All variants in the enum must be strings."
-        else
-          lib.mkOptionType {
-            check =
-              value:
-              let
-                keys = builtins.attrNames value;
-              in
-              builtins.isAttrs value
-              &&
-                [
-                  "__type"
-                  "value"
-                  "variant"
-                ] == keys
-              && value.__type == "enum"
-              && builtins.elem value.variant variants
-              && builtins.isList value.value;
-            description =
-              if variants == [ ] then
-                "impossible (empty RON tuple enum)"
-              else if builtins.length variants == 1 then
-                "RON enum variant ${show (builtins.head variants)} with a ${
-                  lib.types.optionDescriptionPhrase (class: class == "noun" || class == "composite") elemType
-                } value (singular RON tuple enum)"
-              else
-                "one of the following RON tuple enum variants: ${
-                  lib.concatMapStringsSep ", " show variants
-                } with a ${
-                  lib.types.optionDescriptionPhrase (class: class == "noun" || class == "composite") elemType
-                } value";
-            descriptionClass = if builtins.length variants < 2 then "noun" else "conjunction";
-            functor = lib.defaultFunctor name // {
-              payload = {
-                inherit elemType variants;
-              };
-              type = payload: ronTupleEnumOf' payload.elemType payload.variants;
-              binOp = a: b: {
-                variants = lib.unique (a.variants + b.variants);
-                elemType = a.elemType.typeMerge b.elemType.functor;
-              };
-            };
-            inherit (elemType) getSubModules;
-            getSubOptions = prefix: elemType.getSubOptions (prefix ++ [ "*" ]);
-            merge = loc: defs: {
-              __type = "enum";
-              value = map (x: x.value) (
-                builtins.filter (x: x ? value) (
-                  builtins.concatLists (
-                    lib.imap1 (
-                      n: def:
-                      lib.imap1 (
-                        m: def':
-                        (lib.mergeDefinitions (loc ++ [ "[definition ${toString n}-entry ${toString m}]" ]) elemType [
-                          {
-                            inherit (def) file;
-                            value = def';
-                          }
-                        ]).optionalValue
-                      ) def.value.value
-                    ) defs
-                  )
-                )
-              );
-              variant =
-                if builtins.length defs == 0 then
-                  abort "This case should not happen."
-                else if builtins.length defs == 1 then
-                  (builtins.head defs).value.variant
-                else
-                  builtins.foldl' (
-                    first: def:
-                    if def.value.variant != first.value.variant then
-                      throw "The option '${lib.showOption (loc ++ [ "variant" ])}' has conflicting definition values: ${
-                        lib.options.showDefs [
-                          first
-                          def
-                        ]
-                      }"
-                    else
-                      first.value.variant
-                  ) (builtins.head defs) (builtins.tail defs);
-            };
-            inherit name;
-            nestedTypes.elemType = elemType;
-            substSubModules = m: ronTupleEnumOf' (elemType.substSubModules m) variants;
-          };
-    in
-    ronTupleEnumOf';
-
-  ronTupleOf =
-    let
-      ronTupleOf' =
-        let
-          name = "ronTupleOf";
-        in
-        elemType:
+        assert lib.assertMsg (size > 0) "The size must be greater than zero.";
         lib.mkOptionType {
           check =
             value:
@@ -672,10 +494,212 @@ in
                 "value"
               ] == keys
             && value.__type == "tuple"
-            && builtins.isList value.value;
+            && builtins.isList value.value
+            && builtins.length value.value == size;
+          description = "RON tuple";
+          descriptionClass = "noun";
+          emptyValue = {
+            value = {
+              __type = "tuple";
+              value = [ ];
+            };
+          };
+          functor = lib.defaultFunctor name // {
+            payload = { inherit size; };
+            type = payload: ronTuple' payload.size;
+            binOp = a: b: {
+              size = if a.size == b.size then a.size else throw "The tuple sizes do not match.";
+            };
+          };
+          merge = _loc: defs: {
+            __type = "tuple";
+            value = builtins.concatLists (map (x: x.value.value) defs);
+          };
+          inherit name;
+        };
+    in
+    ronTuple';
+
+  ronTupleEnum =
+    let
+      ronTupleEnum' =
+        let
+          name = "ronTupleEnum";
+          show = v: ''"${v}"'';
+        in
+        variants: size:
+        assert lib.assertMsg (builtins.all (
+          value: builtins.isString value
+        ) variants) "All variants in the enum must be strings.";
+        assert lib.assertMsg (size > 0) "The size must be greater than zero.";
+        lib.mkOptionType {
+          check =
+            value:
+            let
+              keys = builtins.attrNames value;
+            in
+            builtins.isAttrs value
+            &&
+              [
+                "__type"
+                "value"
+                "variant"
+              ] == keys
+            && value.__type == "enum"
+            && builtins.elem value.variant variants
+            && builtins.isList value.value
+            && builtins.length value.value == size;
+          description =
+            if variants == [ ] then
+              "impossible (empty RON tuple enum)"
+            else if builtins.length variants == 1 then
+              "RON enum variant ${show (builtins.head variants)} with ${toString size} ${
+                if size == 1 then "value (singular RON tuple enum)" else "values (singular RON tuple enum)"
+              }"
+            else
+              "one of the following RON tuple enum variants: ${
+                lib.concatMapStringsSep ", " show variants
+              } with a value";
+          descriptionClass = if builtins.length variants < 2 then "noun" else "conjunction";
+          functor = lib.defaultFunctor name // {
+            payload = {
+              inherit variants;
+            };
+            type = payload: ronTupleEnum' payload.variants;
+            binOp = a: b: { variants = lib.unique (a.variants + b.variants); };
+          };
+          merge = lib.options.mergeEqualOption;
+          inherit name;
+        };
+    in
+    ronTupleEnum';
+
+  ronTupleEnumOf =
+    let
+      ronTupleEnumOf' =
+        let
+          name = "ronTupleEnumOf";
+          show = v: ''"${v}"'';
+        in
+        elemType: variants: size:
+        assert lib.assertMsg (builtins.all (
+          value: builtins.isString value
+        ) variants) "All variants in the enum must be strings.";
+        assert lib.assertMsg (size > 0) "The size must be greater than zero.";
+        lib.mkOptionType {
+          check =
+            value:
+            let
+              keys = builtins.attrNames value;
+            in
+            builtins.isAttrs value
+            &&
+              [
+                "__type"
+                "value"
+                "variant"
+              ] == keys
+            && value.__type == "enum"
+            && builtins.elem value.variant variants
+            && builtins.isList value.value
+            && builtins.length value.value == size;
+          description =
+            if variants == [ ] then
+              "impossible (empty RON tuple enum)"
+            else if builtins.length variants == 1 then
+              "RON enum variant ${show (builtins.head variants)} with ${toString size} ${
+                lib.types.optionDescriptionPhrase (class: class == "noun" || class == "composite") elemType
+              } ${if size == 1 then "value (singular RON tuple enum)" else "values (singular RON tuple enum)"}"
+            else
+              "one of the following RON tuple enum variants: ${
+                lib.concatMapStringsSep ", " show variants
+              } with ${toString size} ${
+                lib.types.optionDescriptionPhrase (class: class == "noun" || class == "composite") elemType
+              } ${if size == 1 then "value" else "values"}";
+          descriptionClass = if builtins.length variants < 2 then "noun" else "conjunction";
+          functor = lib.defaultFunctor name // {
+            payload = { inherit elemType size variants; };
+            type = payload: ronTupleEnumOf' payload.elemType payload.variants payload.size;
+            binOp = a: b: {
+              variants = lib.unique (a.variants + b.variants);
+              elemType = a.elemType.typeMerge b.elemType.functor;
+              size = if a.size == b.size then a.size else throw "The tuple sizes do not match.";
+            };
+          };
+          inherit (elemType) getSubModules;
+          getSubOptions = prefix: elemType.getSubOptions (prefix ++ [ "*" ]);
+          merge = loc: defs: {
+            __type = "enum";
+            value = map (x: x.value) (
+              builtins.filter (x: x ? value) (
+                builtins.concatLists (
+                  lib.imap1 (
+                    n: def:
+                    lib.imap1 (
+                      m: def':
+                      (lib.mergeDefinitions (loc ++ [ "[definition ${toString n}-entry ${toString m}]" ]) elemType [
+                        {
+                          inherit (def) file;
+                          value = def';
+                        }
+                      ]).optionalValue
+                    ) def.value.value
+                  ) defs
+                )
+              )
+            );
+            variant =
+              if builtins.length defs == 0 then
+                abort "This case should not happen."
+              else if builtins.length defs == 1 then
+                (builtins.head defs).value.variant
+              else
+                builtins.foldl' (
+                  first: def:
+                  if def.value.variant != first.value.variant then
+                    throw "The option '${lib.showOption (loc ++ [ "variant" ])}' has conflicting definition values: ${
+                      lib.options.showDefs [
+                        first
+                        def
+                      ]
+                    }"
+                  else
+                    first.value.variant
+                ) (builtins.head defs) (builtins.tail defs);
+          };
+          inherit name;
+          nestedTypes.elemType = elemType;
+          substSubModules = m: ronTupleEnumOf' (elemType.substSubModules m) variants size;
+        };
+    in
+    ronTupleEnumOf';
+
+  ronTupleOf =
+    let
+      ronTupleOf' =
+        let
+          name = "ronTupleOf";
+        in
+        elemType: size:
+        assert lib.assertMsg (size > 0) "The size must be greater than zero.";
+        lib.mkOptionType {
+          check =
+            value:
+            let
+              keys = builtins.attrNames value;
+            in
+            builtins.isAttrs value
+            &&
+              [
+                "__type"
+                "value"
+              ] == keys
+            && value.__type == "tuple"
+            && builtins.isList value.value
+            && builtins.length value.value == size;
           description = "RON tuple of ${
             lib.types.optionDescriptionPhrase (class: class == "noun" || class == "composite") elemType
-          }";
+          } with a fixed-size of ${toString size} elements";
           descriptionClass = "composite";
           emptyValue = {
             value = {
@@ -689,9 +713,15 @@ in
               let
                 merged = a.elemType.typeMerge b.elemType.functor;
               in
-              if merged == null then null else { elemType = merged; };
-            payload = { inherit elemType; };
-            type = payload: ronTupleOf' payload.elemType;
+              if merged == null then
+                null
+              else
+                {
+                  elemType = merged;
+                  size = if a.size == b.size then a.size else throw "The tuple sizes do not match.";
+                };
+            payload = { inherit elemType size; };
+            type = payload: ronTupleOf' payload.elemType payload.size;
             wrappedDeprecationMessage =
               { loc }:
               lib.warn ''
@@ -723,7 +753,7 @@ in
           };
           inherit name;
           nestedTypes.elemType = elemType;
-          substSubModules = m: ronTupleOf' (elemType.substSubModules m);
+          substSubModules = m: ronTupleOf' (elemType.substSubModules m) size;
         };
     in
     ronTupleOf';
