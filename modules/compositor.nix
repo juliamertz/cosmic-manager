@@ -64,14 +64,17 @@
             defaultNullOpts.mkRonOptionalOf (with lib.types; ronTupleOf float 6)
               {
                 __type = "optional";
-                value = [
-                  1.0
-                  0.0
-                  0.0
-                  0.0
-                  1.0
-                  0.0
-                ];
+                value = {
+                  __type = "tuple";
+                  value = [
+                    1.0
+                    0.0
+                    0.0
+                    0.0
+                    1.0
+                    0.0
+                  ];
+                };
               }
               ''
                 The calibration matrix for the input device.

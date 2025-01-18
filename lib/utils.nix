@@ -176,6 +176,12 @@ in
               throw "lib.cosmic.mkRonExpression: namedStruct type must have name and value keys."
           else if isRonType value.value then
             toRonExpression value.__type (mkRonExpression' startIndent value.value value.__type)
+          else if builtins.isList value.value then
+            toRonExpression value.__type (map (v: mkRonExpression' nextIndent v value.__type) value.value)
+          else if builtins.isAttrs value.value then
+            toRonExpression value.__type (
+              builtins.mapAttrs (_: v: mkRonExpression' nextIndent v value.__type) value.value
+            )
           else
             toRonExpression value.__type value.value
         else if builtins.isList value then
