@@ -293,7 +293,7 @@
                     '';
 
                 gaps =
-                  defaultNullOpts.mkRonTupleOf lib.types.u32 2
+                  defaultNullOpts.mkRonTupleOf lib.types.ints.u32 2
                     {
                       __type = "tuple";
                       value = [
