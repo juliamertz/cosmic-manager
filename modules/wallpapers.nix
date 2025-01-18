@@ -232,44 +232,40 @@
           (builtins.filter (wallpaper: wallpaper.output == "all"))
           builtins.length
         ] > 0;
+
+      outputs = map (wallpaper: wallpaper.output) cfg.wallpapers;
     in
-    {
+    lib.mkIf (cfg.wallpapers != [ ]) {
       assertions = [
         {
           assertion = hasAllWallpaper -> builtins.length cfg.wallpapers == 1;
           message = "Only one wallpaper can be set if the output is set to 'all'.";
         }
         {
-          assertion =
-            let
-              outputs = map (wallpaper: wallpaper.output) cfg.wallpapers;
-            in
-            builtins.length outputs == builtins.length (lib.unique outputs);
+          assertion = builtins.length outputs == builtins.length (lib.unique outputs);
           message = "Each output can only have one wallpaper configuration.";
         }
       ];
 
-      wayland.desktopManager.cosmic.configFile."com.system76.CosmicBackground" =
-        lib.mkIf (cfg.wallpapers != [ ])
-          {
-            entries =
-              if hasAllWallpaper then
-                {
-                  all = builtins.head cfg.wallpapers;
-                  same-on-all = true;
-                }
-              else
-                {
-                  backgrounds = map (wallpaper: wallpaper.output) cfg.wallpapers;
-                  same-on-all = false;
-                }
-                // builtins.listToAttrs (
-                  map (wallpaper: {
-                    name = "output.${wallpaper.output}";
-                    value = wallpaper;
-                  }) cfg.wallpapers
-                );
-            version = 1;
-          };
+      wayland.desktopManager.cosmic.configFile."com.system76.CosmicBackground" = {
+        entries =
+          if hasAllWallpaper then
+            {
+              all = builtins.head cfg.wallpapers;
+              same-on-all = true;
+            }
+          else
+            {
+              backgrounds = outputs;
+              same-on-all = false;
+            }
+            // builtins.listToAttrs (
+              map (wallpaper: {
+                name = "output.${wallpaper.output}";
+                value = wallpaper;
+              }) cfg.wallpapers
+            );
+        version = 1;
+      };
     };
 }

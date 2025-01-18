@@ -1393,8 +1393,8 @@
 
           needsBuild =
             builtins.any (panel: panel.background != null && panel.background.variant == "Color") cfg.panels
-            || cfg.appearance.theme.dark != null
-            || cfg.appearance.theme.light != null;
+            || cfg.appearance.theme.dark != { }
+            || cfg.appearance.theme.light != { };
         in
         lib.mkIf needsBuild (
           lib.hm.dag.entryAfter [ "configureCosmic" ] "run ${lib.getExe cosmic-manager-cli} build-theme"
