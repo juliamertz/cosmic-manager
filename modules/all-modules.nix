@@ -5,6 +5,7 @@ let
   misc = ./misc;
 in
 [
+  ./appearance.nix
   ./files.nix
   ./panels.nix
   ./shortcuts.nix
