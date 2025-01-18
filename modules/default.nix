@@ -42,7 +42,7 @@
     let
       cfg = config.wayland.desktopManager.cosmic;
 
-      cli = pkgs.callPackage ../cosmic-manager { };
+      cosmic-manager-cli = pkgs.callPackage ../cosmic-manager { };
     in
     lib.mkIf cfg.enable {
       _module.args.cosmicLib = lib.mkDefault (import ../lib/extend-lib.nix { inherit lib; });
@@ -50,6 +50,6 @@
 
       home.packages =
         lib.optionals cfg.installCosmicCtl [ pkgs.cosmic-ext-ctl ]
-        ++ lib.optionals cfg.installCli [ cli ];
+        ++ lib.optionals cfg.installCli [ cosmic-manager-cli ];
     };
 }

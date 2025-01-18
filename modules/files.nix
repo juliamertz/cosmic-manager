@@ -246,12 +246,12 @@
       ];
 
       home.activation = lib.mkIf cfg.enable {
-        configure-cosmic = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        configureCosmic = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
           run ${lib.getExe pkgs.cosmic-ext-ctl} apply ${json}
         '';
 
-        reset-cosmic = lib.mkIf cfg.resetFiles (
-          lib.hm.dag.entryBefore [ "configure-cosmic" ] ''
+        resetCosmic = lib.mkIf cfg.resetFiles (
+          lib.hm.dag.entryBefore [ "configureCosmic" ] ''
             run ${lib.getExe pkgs.cosmic-ext-ctl} reset --force --xdg-dirs ${builtins.concatStringsSep "," cfg.resetFilesDirectories} ${
               lib.optionalString (
                 builtins.length cfg.resetFilesExclude > 0
