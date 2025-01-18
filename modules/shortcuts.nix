@@ -123,7 +123,12 @@ in
               action = {
                 __type = "enum";
                 variant = "System";
-                value = [ "BrightnessDown" ];
+                value = [
+                  {
+                    __type = "enum";
+                    variant = "BrightnessDown";
+                  }
+                ];
               };
             }
             {
