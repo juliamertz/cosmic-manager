@@ -252,16 +252,16 @@ in
           merge = loc: defs: {
             __type = "map";
             value = builtins.concatLists (
-              map (
-                def:
-                map (entry: {
+              lib.imap1 (
+                n: def:
+                lib.imap1 (m: entry: {
                   inherit (entry) key;
                   value =
                     (lib.mergeDefinitions
                       (
                         loc
                         ++ [
-                          "*"
+                          "[definition ${toString n}-entry ${toString m}]"
                           "value"
                         ]
                       )
