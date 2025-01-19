@@ -74,7 +74,7 @@
               };
             in
             lib.types.submodule {
-              freeformType = with lib.types; attrsOf cosmicEntryValue;
+              freeformType = with lib.types; attrsOf anything;
               options = {
                 accent =
                   defaultNullOpts.mkNullable (lib.types.ronOptionalOf srgbType)
@@ -112,7 +112,7 @@
                 corner_radii =
                   let
                     cornerRadiiSubmodule = lib.types.submodule {
-                      freeformType = with lib.types; attrsOf cosmicEntryValue;
+                      freeformType = with lib.types; attrsOf anything;
                       options = {
                         radius_0 = lib.mkOption {
                           type = with lib.types; maybeRonRaw (ronTupleOf float 4);
@@ -328,7 +328,7 @@
                 palette =
                   let
                     paletteSubmodule = lib.types.submodule {
-                      freeformType = with lib.types; attrsOf cosmicEntryValue;
+                      freeformType = with lib.types; attrsOf anything;
                       options = {
                         accent_blue = lib.mkOption {
                           type = lib.types.maybeRonRaw srgbaType;
@@ -1033,7 +1033,7 @@
                 spacing =
                   let
                     spacingSubmodule = lib.types.submodule {
-                      freeformType = with lib.types; attrsOf cosmicEntryValue;
+                      freeformType = with lib.types; attrsOf anything;
                       options = {
                         space_none = lib.mkOption {
                           type = with lib.types; maybeRonRaw ints.u16;
@@ -1209,11 +1209,11 @@
       toolkit =
         let
           toolkitSubmodule = lib.types.submodule {
-            freeformType = with lib.types; attrsOf cosmicEntryValue;
+            freeformType = with lib.types; attrsOf anything;
             options =
               let
                 fontSubmodule = lib.types.submodule {
-                  freeformType = with lib.types; attrsOf cosmicEntryValue;
+                  freeformType = with lib.types; attrsOf anything;
                   options = {
                     family = lib.mkOption {
                       type = with lib.types; maybeRonRaw str;

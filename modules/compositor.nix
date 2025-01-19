@@ -9,12 +9,12 @@
           inherit (lib.cosmic) mkRonExpression;
 
           inputSubmodule = lib.types.submodule {
-            freeformType = with lib.types; attrsOf cosmicEntryValue;
+            freeformType = with lib.types; attrsOf anything;
             options = {
               acceleration =
                 let
                   accelerationSubmodule = lib.types.submodule {
-                    freeformType = with lib.types; attrsOf cosmicEntryValue;
+                    freeformType = with lib.types; attrsOf anything;
                     options = {
                       profile = lib.mkOption {
                         type =
@@ -154,7 +154,7 @@
               scroll_config =
                 let
                   scrollConfigSubmodule = lib.types.submodule {
-                    freeformType = with lib.types; attrsOf cosmicEntryValue;
+                    freeformType = with lib.types; attrsOf anything;
                     options = {
                       method = lib.mkOption {
                         type =
@@ -250,7 +250,7 @@
               tap_config =
                 let
                   tapConfigSubmodule = lib.types.submodule {
-                    freeformType = with lib.types; attrsOf cosmicEntryValue;
+                    freeformType = with lib.types; attrsOf anything;
                     options = {
                       button_map = lib.mkOption {
                         type =
@@ -327,7 +327,7 @@
           };
         in
         lib.types.submodule {
-          freeformType = with lib.types; attrsOf cosmicEntryValue;
+          freeformType = with lib.types; attrsOf anything;
           options = {
             active_hint = defaultNullOpts.mkBool true ''
               Whether to show the active window hint.
@@ -445,7 +445,7 @@
             workspaces =
               let
                 workspacesSubmodule = lib.types.submodule {
-                  freeformType = with lib.types; attrsOf cosmicEntryValue;
+                  freeformType = with lib.types; attrsOf anything;
                   options = {
                     workspace_layout = lib.mkOption {
                       type =
@@ -505,7 +505,7 @@
             xkb_config =
               let
                 xkbConfigSubmodule = lib.types.submodule {
-                  freeformType = with lib.types; attrsOf cosmicEntryValue;
+                  freeformType = with lib.types; attrsOf anything;
                   options = {
                     layout = lib.mkOption {
                       type = with lib.types; maybeRonRaw str;

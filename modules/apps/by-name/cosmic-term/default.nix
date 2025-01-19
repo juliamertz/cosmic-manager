@@ -105,7 +105,7 @@ lib.cosmic.applications.mkCosmicApplication {
     profiles =
       let
         profileSubmodule = lib.types.submodule {
-          freeformType = with lib.types; attrsOf cosmicEntryValue;
+          freeformType = with lib.types; attrsOf anything;
           options = {
             command = defaultNullOpts.mkStr' {
               example = "bash";
@@ -214,7 +214,7 @@ lib.cosmic.applications.mkCosmicApplication {
         mkColorsSubmodule =
           scope:
           lib.types.submodule {
-            freeformType = with lib.types; attrsOf cosmicEntryValue;
+            freeformType = with lib.types; attrsOf anything;
             options = {
               black = lib.mkOption {
                 type = lib.types.hexColor;
@@ -275,7 +275,7 @@ lib.cosmic.applications.mkCosmicApplication {
             };
           };
         colorSchemeSubmodule = lib.types.submodule {
-          freeformType = with lib.types; attrsOf cosmicEntryValue;
+          freeformType = with lib.types; attrsOf anything;
           options = {
             bright = lib.mkOption {
               type = mkColorsSubmodule "bright";

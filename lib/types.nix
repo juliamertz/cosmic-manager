@@ -40,7 +40,7 @@ in
       };
 
       entries = lib.mkOption {
-        type = with lib.types; attrsOf cosmicEntryValue;
+        type = with lib.types; attrsOf anything;
         example = {
           autotile = true;
           autotile_behavior = {
@@ -54,21 +54,6 @@ in
       };
     };
   };
-
-  cosmicEntryValue =
-    with lib.types;
-    nullOr (oneOf [
-      (attrsOf anything)
-      bool
-      (listOf anything)
-      number
-      rawRon
-      ronChar
-      (ronMapOf anything)
-      (ronNamedStructOf anything)
-      (ronOptionalOf anything)
-      str
-    ]);
 
   hexColor = lib.types.strMatching "^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" // {
     description = "hex color";

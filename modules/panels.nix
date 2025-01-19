@@ -5,7 +5,7 @@
       inherit (lib.cosmic) defaultNullOpts;
 
       panelSubmodule = lib.types.submodule {
-        freeformType = with lib.types; attrsOf cosmicEntryValue;
+        freeformType = with lib.types; attrsOf anything;
         options = {
           anchor =
             defaultNullOpts.mkRonEnum [ "Bottom" "Left" "Right" "Top" ]
@@ -26,7 +26,7 @@
             defaultNullOpts.mkNullable
               (lib.types.ronOptionalOf (
                 lib.types.submodule {
-                  freeformType = with lib.types; attrsOf cosmicEntryValue;
+                  freeformType = with lib.types; attrsOf anything;
                   options = {
                     handle_size = lib.mkOption {
                       type =

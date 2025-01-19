@@ -9,7 +9,7 @@
           inherit (lib.cosmic) mkRonExpression;
         in
         lib.types.submodule {
-          freeformType = with lib.types; attrsOf cosmicEntryValue;
+          freeformType = with lib.types; attrsOf anything;
           options = {
             filter_by_theme = lib.mkOption {
               type = with lib.types; maybeRonRaw bool;
@@ -96,7 +96,7 @@
             source =
               let
                 gradientSubmodule = lib.types.submodule {
-                  freeformType = with lib.types; attrsOf cosmicEntryValue;
+                  freeformType = with lib.types; attrsOf anything;
                   options = {
                     colors = lib.mkOption {
                       type =

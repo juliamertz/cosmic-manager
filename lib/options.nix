@@ -366,7 +366,7 @@ in
       type =
         with lib.types;
         submodule {
-          freeformType = attrsOf cosmicEntryValue;
+          freeformType = attrsOf anything;
           inherit options;
         };
       default = { };

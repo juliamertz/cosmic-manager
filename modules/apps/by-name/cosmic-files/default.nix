@@ -25,7 +25,7 @@ lib.cosmic.applications.mkCosmicApplication {
       desktop =
         defaultNullOpts.mkNullable
           (lib.types.submodule {
-            freeformType = with lib.types; attrsOf cosmicEntryValue;
+            freeformType = with lib.types; attrsOf anything;
             options = {
               show_content = lib.mkOption {
                 type = with lib.types; maybeRonRaw bool;
@@ -111,7 +111,7 @@ lib.cosmic.applications.mkCosmicApplication {
       tab =
         defaultNullOpts.mkNullable
           (lib.types.submodule {
-            freeformType = with lib.types; attrsOf cosmicEntryValue;
+            freeformType = with lib.types; attrsOf anything;
             options = {
               folders_first = lib.mkOption {
                 type = with lib.types; maybeRonRaw bool;
@@ -123,7 +123,7 @@ lib.cosmic.applications.mkCosmicApplication {
 
               icon_sizes = lib.mkOption {
                 type = lib.types.submodule {
-                  freeformType = with lib.types; attrsOf cosmicEntryValue;
+                  freeformType = with lib.types; attrsOf anything;
                   options = {
                     grid = lib.mkOption {
                       type =
