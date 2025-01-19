@@ -240,7 +240,15 @@ in
               '' elemType;
           };
           inherit (elemType) getSubModules;
-          getSubOptions = prefix: elemType.getSubOptions (prefix ++ [ "<name>" ]);
+          getSubOptions =
+            prefix:
+            elemType.getSubOptions (
+              prefix
+              ++ [
+                "*"
+                "value"
+              ]
+            );
           merge = loc: defs: {
             __type = "map";
             value = builtins.concatLists (
@@ -249,12 +257,22 @@ in
                 map (entry: {
                   inherit (entry) key;
                   value =
-                    (lib.mergeDefinitions (loc ++ [ "<entry>" ]) elemType [
-                      {
-                        inherit (def) file;
-                        inherit (entry) value;
-                      }
-                    ]).mergedValue;
+                    (lib.mergeDefinitions
+                      (
+                        loc
+                        ++ [
+                          "*"
+                          "value"
+                        ]
+                      )
+                      elemType
+                      [
+                        {
+                          inherit (def) file;
+                          inherit (entry) value;
+                        }
+                      ]
+                    ).mergedValue;
                 }) def.value.value
               ) defs
             );
