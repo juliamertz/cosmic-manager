@@ -91,7 +91,10 @@
     defaultNullOpts.mkNullable (lib.types.listOf shortcutSubmodule)
       [
         {
-          description = "Open Firefox";
+          description = {
+            __type = "optional";
+            value = "Open Firefox";
+          };
           key = "Super+B";
           action = {
             __type = "enum";
