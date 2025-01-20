@@ -227,6 +227,7 @@
   config =
     let
       cfg = config.wayland.desktopManager.cosmic;
+      version = 1;
 
       hasAllWallpaper =
         lib.pipe cfg.wallpapers [
@@ -236,37 +237,54 @@
 
       outputs = map (wallpaper: wallpaper.output) cfg.wallpapers;
     in
-    lib.mkIf (cfg.wallpapers != null) {
-      assertions = [
+    lib.mkIf (cfg.wallpapers != null) (
+      lib.mkMerge [
         {
-          assertion = hasAllWallpaper -> builtins.length cfg.wallpapers == 1;
-          message = "Only one wallpaper can be set if the output is set to 'all'.";
-        }
-        {
-          assertion = builtins.length outputs == builtins.length (lib.unique outputs);
-          message = "Each output can only have one wallpaper configuration.";
-        }
-      ];
+          assertions = [
+            {
+              assertion = hasAllWallpaper -> builtins.length cfg.wallpapers == 1;
+              message = "Only one wallpaper can be set if the output is set to 'all'.";
+            }
+            {
+              assertion = builtins.length outputs == builtins.length (lib.unique outputs);
+              message = "Each output can only have one wallpaper configuration.";
+            }
+          ];
 
-      wayland.desktopManager.cosmic.configFile."com.system76.CosmicBackground" = {
-        entries =
-          if hasAllWallpaper then
-            {
-              all = builtins.head cfg.wallpapers;
-              same-on-all = true;
-            }
-          else
-            {
-              backgrounds = outputs;
-              same-on-all = false;
-            }
-            // builtins.listToAttrs (
-              map (wallpaper: {
-                name = "output.${wallpaper.output}";
-                value = wallpaper;
-              }) cfg.wallpapers
-            );
-        version = 1;
-      };
-    };
+          wayland.desktopManager.cosmic.configFile."com.system76.CosmicBackground" = {
+            entries =
+              if hasAllWallpaper then
+                {
+                  all = builtins.head cfg.wallpapers;
+                  same-on-all = true;
+                }
+              else
+                {
+                  backgrounds = outputs;
+                  same-on-all = false;
+                }
+                // builtins.listToAttrs (
+                  map (wallpaper: {
+                    name = "output.${wallpaper.output}";
+                    value = wallpaper;
+                  }) cfg.wallpapers
+                );
+            inherit version;
+          };
+        }
+
+        (lib.mkIf (!hasAllWallpaper) {
+          wayland.desktopManager.cosmic.stateFile."com.system76.CosmicBackground" = {
+            entries.wallpapers = map (wallpaper: {
+              __type = "tuple";
+              value = [
+                wallpaper.output
+                wallpaper.source
+              ];
+            }) cfg.wallpapers;
+            inherit version;
+          };
+        })
+      ]
+    );
 }
