@@ -1,7 +1,7 @@
 { lib, ... }:
 let
   appletsByName = ./applets/by-name;
-  appsByName = ./apps/by-name;
+  applicationsByName = ./applications/by-name;
   misc = ./misc;
 in
 [
@@ -15,8 +15,8 @@ in
 ]
 ++ lib.foldlAttrs (
   prev: name: type:
-  prev ++ lib.optional (type == "directory") (appsByName + "/${name}")
-) [ ] (builtins.readDir appsByName)
+  prev ++ lib.optional (type == "directory") (applicationsByName + "/${name}")
+) [ ] (builtins.readDir applicationsByName)
 ++ lib.foldlAttrs (
   prev: name: type:
   prev ++ lib.optional (type == "directory") (appletsByName + "/${name}")
