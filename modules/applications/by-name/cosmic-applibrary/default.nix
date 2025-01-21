@@ -50,11 +50,11 @@ lib.cosmic.applications.mkCosmicApplication {
                     };
                   in
                   with lib.types;
-                  oneOf [
+                  maybeRonRaw (oneOf [
                     (ronEnum [ "None" ])
                     (ronTupleEnumOf (listOf str) [ "AppIds" ] 1)
                     (ronNamedStructOf categorySubmodule)
-                  ];
+                  ]);
                 example = {
                   __type = "namedStruct";
                   name = "Categories";
