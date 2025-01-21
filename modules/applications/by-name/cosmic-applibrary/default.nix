@@ -24,7 +24,7 @@ lib.cosmic.applications.mkCosmicApplication {
                       freeformType = with lib.types; attrsOf anything;
                       options = {
                         categories = lib.mkOption {
-                          type = with lib.types; listOf str;
+                          type = with lib.types; maybeRonRaw (listOf str);
                           example = [ "Office" ];
                           description = ''
                             The categories of the group.
@@ -32,7 +32,7 @@ lib.cosmic.applications.mkCosmicApplication {
                         };
 
                         exclude = lib.mkOption {
-                          type = with lib.types; listOf str;
+                          type = with lib.types; maybeRonRaw (listOf str);
                           example = [ "com.system76.CosmicStore" ];
                           description = ''
                             The applications to exclude from the group.
@@ -40,7 +40,7 @@ lib.cosmic.applications.mkCosmicApplication {
                         };
 
                         include = lib.mkOption {
-                          type = with lib.types; listOf str;
+                          type = with lib.types; maybeRonRaw (listOf str);
                           example = [ "com.system76.CosmicStore" ];
                           description = ''
                             The applications to include in the group.
@@ -75,7 +75,7 @@ lib.cosmic.applications.mkCosmicApplication {
               };
 
               icon = lib.mkOption {
-                type = lib.types.str;
+                type = with lib.types; maybeRonRaw str;
                 example = "folder-symbolic";
                 description = ''
                   The icon of the group.
@@ -83,7 +83,7 @@ lib.cosmic.applications.mkCosmicApplication {
               };
 
               name = lib.mkOption {
-                type = lib.types.str;
+                type = with lib.types; maybeRonRaw str;
                 example = "cosmic-office";
                 description = ''
                   The name of the group.
