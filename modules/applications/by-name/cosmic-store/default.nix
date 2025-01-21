@@ -5,6 +5,8 @@ lib.cosmic.applications.mkCosmicApplication {
   identifier = "com.system76.CosmicStore";
   configurationVersion = 1;
 
+  maintainers = [ lib.maintainers.HeitorAugustoLN ];
+
   settingsOptions =
     let
       inherit (lib.cosmic) defaultNullOpts;
