@@ -4,7 +4,7 @@
     let
       inherit (lib.cosmic) defaultNullOpts;
 
-      inputSubmodule = lib.types.submodule {
+      idleSubmodule = lib.types.submodule {
         freeformType = with lib.types; attrsOf anything;
         options = {
           screen_off_time =
@@ -39,7 +39,7 @@
         };
       };
     in
-    defaultNullOpts.mkNullable inputSubmodule
+    defaultNullOpts.mkNullable idleSubmodule
       {
         screen_off_time = {
           __type = "optional";
