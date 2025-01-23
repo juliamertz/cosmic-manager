@@ -41,9 +41,18 @@
     in
     defaultNullOpts.mkNullable inputSubmodule
       {
-        screen_off_time = 90000;
-        suspend_on_ac_time = 180000;
-        suspend_on_battery_time = 90000;
+        screen_off_time = {
+          __type = "optional";
+          value = 90000;
+        };
+        suspend_on_ac_time = {
+          __type = "optional";
+          value = 180000;
+        };
+        suspend_on_battery_time = {
+          __type = "optional";
+          value = 90000;
+        };
       }
       ''
         Settings for the COSMIC idle manager.
