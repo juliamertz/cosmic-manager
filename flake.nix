@@ -24,7 +24,7 @@
       flake = {
         homeManagerModules = {
           default = inputs.self.homeManagerModules.cosmic-manager;
-          cosmic-manager = import ./modules;
+          cosmic-manager = ./modules;
         };
       };
 
