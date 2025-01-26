@@ -6,11 +6,13 @@
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
   outputs =
@@ -18,21 +20,18 @@
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [
         "aarch64-linux"
+        "i686-linux"
         "x86_64-linux"
       ];
 
-      flake = {
-        homeManagerModules = {
-          default = inputs.self.homeManagerModules.cosmic-manager;
-          cosmic-manager = ./modules;
-        };
+      flake.homeManagerModules = {
+        default = inputs.self.homeManagerModules.cosmic-manager;
+        cosmic-manager = ./modules;
       };
 
       perSystem =
         { pkgs, self', ... }:
         let
-          inherit (pkgs) lib;
-
           version = inputs.self.shortRev or inputs.self.dirtyShortRev or "unknown";
 
           mkOptionsDoc = pkgs.callPackage ./docs/options.nix { };
@@ -60,13 +59,17 @@
 
             site =
               let
-                src = lib.fileset.toSource {
-                  root = ./.;
-                  fileset = lib.fileset.unions [
-                    ./docs/book.toml
-                    ./docs/src
-                  ];
-                };
+                src =
+                  let
+                    inherit (pkgs) lib;
+                  in
+                  lib.fileset.toSource {
+                    root = ./.;
+                    fileset = lib.fileset.unions [
+                      ./docs/book.toml
+                      ./docs/src
+                    ];
+                  };
               in
               mkSite {
                 pname = "cosmic-manager-website";

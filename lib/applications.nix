@@ -4,7 +4,7 @@
     {
       configurationVersion,
       description ? null,
-      extraConfig ? _cfg: { },
+      extraConfig ? _: { },
       extraOptions ? { },
       hasSettings ? true,
       identifier,
