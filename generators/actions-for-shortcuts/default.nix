@@ -7,8 +7,8 @@ let
   cosmic-settings-daemon = fetchFromGitHub {
     owner = "pop-os";
     repo = "cosmic-settings-daemon";
-    rev = "refs/tags/epoch-1.0.0-alpha.5";
-    hash = "sha256-BCOVyJ1IIik/R4qC/16csJH8yII4WxdxO116hdvUl3I=";
+    tag = "epoch-1.0.0-alpha.5.1";
+    hash = "sha256-MlBnwbszwJCa/FQNihSKsy7Bllw807C8qQL9ziYS3fE=";
   };
 in
 runCommand "actions-for-shortcuts.json" { buildInputs = [ python3 ]; } ''
