@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ config, lib, ... }:
 {
   options.wayland.desktopManager.cosmic.appearance =
     let
@@ -1370,21 +1365,20 @@
   config =
     let
       cfg = config.wayland.desktopManager.cosmic;
-
       version = 1;
     in
     {
       home.activation.buildCosmicTheme =
         let
-          cosmic-manager-cli = pkgs.callPackage ../cosmic-manager { };
-
           needsBuild =
             builtins.any (panel: panel.background != null && panel.background.variant == "Color") cfg.panels
             || cfg.appearance.theme.dark != null
             || cfg.appearance.theme.light != null;
         in
         lib.mkIf needsBuild (
-          lib.hm.dag.entryAfter [ "configureCosmic" ] "run ${lib.getExe cosmic-manager-cli} build-theme"
+          lib.hm.dag.entryAfter [
+            "configureCosmic"
+          ] "run ${lib.getExe config.programs.cosmic-manager.package} build-theme"
         );
 
       wayland.desktopManager.cosmic.configFile = lib.mkMerge [

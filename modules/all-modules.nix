@@ -7,6 +7,7 @@ in
 [
   ./appearance.nix
   ./compositor.nix
+  ./cosmic-manager.nix
   ./files.nix
   ./idle.nix
   ./panels.nix
