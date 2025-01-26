@@ -245,19 +245,23 @@
         }
       ];
 
-      home.activation = lib.mkIf cfg.enable {
-        configureCosmic = lib.hm.dag.entryAfter [
-          "writeBoundary"
-        ] "run ${lib.getExe config.programs.cosmic-ext-ctl.package} apply ${json}";
+      home.activation =
+        let
+          cosmic-ctl = lib.getExe config.programs.cosmic-ext-ctl.package;
+        in
+        lib.mkIf cfg.enable {
+          configureCosmic = lib.hm.dag.entryAfter [
+            "writeBoundary"
+          ] "run ${cosmic-ctl} apply ${json}";
 
-        resetCosmic = lib.mkIf cfg.resetFiles (
-          lib.hm.dag.entryBefore [ "configureCosmic" ]
-            "run ${lib.getExe config.programs.cosmic-ext-ctl.package} reset --force --xdg-dirs ${builtins.concatStringsSep "," cfg.resetFilesDirectories} ${
-              lib.optionalString (
-                builtins.length cfg.resetFilesExclude > 0
-              ) "--exclude ${builtins.concatStringsSep "," cfg.resetFilesExclude}"
-            }"
-        );
-      };
+          resetCosmic = lib.mkIf cfg.resetFiles (
+            lib.hm.dag.entryBefore [ "configureCosmic" ]
+              "run ${cosmic-ctl} reset --force --xdg-dirs ${builtins.concatStringsSep "," cfg.resetFilesDirectories} ${
+                lib.optionalString (
+                  builtins.length cfg.resetFilesExclude > 0
+                ) "--exclude ${builtins.concatStringsSep "," cfg.resetFilesExclude}"
+              }"
+          );
+        };
     };
 }
