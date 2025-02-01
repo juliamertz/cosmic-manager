@@ -1,5 +1,13 @@
 { config, lib, ... }:
 {
+  imports = [
+    # TODO: Remove after COSMIC stable release.
+    (lib.mkRenamedOptionModule
+      [ "wayland" "desktopManager" "cosmic" "appearance" "default" ]
+      [ "wayland" "desktopManager" "cosmic" "appearance" "mode" ]
+    )
+  ];
+
   options.wayland.desktopManager.cosmic.appearance =
     let
       inherit (lib.cosmic) defaultNullOpts mkRonExpression;
@@ -1192,7 +1200,7 @@
             The dark theme to build for COSMIC desktop and applications.
           '';
 
-          default = defaultNullOpts.mkEnum [ "dark" "light" ] "dark" ''
+          mode = defaultNullOpts.mkEnum [ "dark" "light" ] "dark" ''
             The default theme to use for COSMIC desktop and applications.
           '';
 
@@ -1397,9 +1405,9 @@
           };
         })
 
-        (lib.mkIf (cfg.appearance.theme.default != null) {
+        (lib.mkIf (cfg.appearance.theme.mode != null) {
           "com.system76.CosmicTheme.Mode" = {
-            entries.is_dark = cfg.appearance.theme.default == "dark";
+            entries.is_dark = cfg.appearance.theme.mode == "dark";
             inherit version;
           };
         })

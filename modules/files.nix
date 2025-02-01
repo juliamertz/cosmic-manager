@@ -250,9 +250,7 @@
           cosmic-ctl = lib.getExe config.programs.cosmic-ext-ctl.package;
         in
         lib.mkIf cfg.enable {
-          configureCosmic = lib.hm.dag.entryAfter [
-            "writeBoundary"
-          ] "run ${cosmic-ctl} apply ${json}";
+          configureCosmic = lib.hm.dag.entryAfter [ "writeBoundary" ] "run ${cosmic-ctl} apply ${json}";
 
           resetCosmic = lib.mkIf cfg.resetFiles (
             lib.hm.dag.entryBefore [ "configureCosmic" ]

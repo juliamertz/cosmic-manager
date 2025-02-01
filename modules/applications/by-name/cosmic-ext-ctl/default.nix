@@ -6,6 +6,7 @@
 }:
 {
   imports = [
+    # TODO: Remove after COSMIC stable release.
     (lib.mkRenamedOptionModule
       [ "wayland" "desktopManager" "cosmic" "installCosmicCtl" ]
       [ "programs" "cosmic-ext-ctl" "enable" ]
