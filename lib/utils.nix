@@ -83,18 +83,18 @@ in
       };
       enum =
         if builtins.isAttrs value then
-          if
-            builtins.attrNames value == [
-              "value"
-              "variant"
-            ]
-          then
-            {
-              __type = "enum";
-              inherit (value) value variant;
-            }
-          else
-            throw "lib.cosmic.ron: enum type must receive a string or an attribute set with value and variant keys value"
+          assert lib.assertMsg
+            (
+              builtins.attrNames value == [
+                "value"
+                "variant"
+              ]
+            )
+            "lib.cosmic.mkRon: enum type must receive a string or an attribute set with value and variant keys value";
+          {
+            __type = "enum";
+            inherit (value) value variant;
+          }
         else
           {
             __type = "enum";
@@ -105,21 +105,18 @@ in
         inherit value;
       };
       namedStruct =
-        if builtins.isAttrs value then
-          if
+        assert lib.assertMsg (
+          builtins.isAttrs value
+          &&
             builtins.attrNames value == [
               "name"
               "value"
             ]
-          then
-            {
-              __type = "namedStruct";
-              inherit (value) name value;
-            }
-          else
-            throw "lib.cosmic.ron: namedStruct type must receive a attribute set with name and value keys."
-        else
-          throw "lib.cosmic.ron: namedStruct type must receive an attribute set as value.";
+        ) "lib.cosmic.mkRon: namedStruct type must receive an attribute set with name and value keys.";
+        {
+          __type = "namedStruct";
+          inherit (value) name value;
+        };
       optional = {
         __type = "optional";
         inherit value;
