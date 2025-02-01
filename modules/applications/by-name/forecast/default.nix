@@ -40,7 +40,7 @@ lib.cosmic.applications.mkCosmicApplication {
         defaultNullOpts.mkRonOptionalOf lib.types.str
           {
             __type = "optional";
-            variant = "-28.971476";
+            value = "-28.971476";
           }
           ''
             The latitude of the location.
@@ -50,7 +50,7 @@ lib.cosmic.applications.mkCosmicApplication {
         defaultNullOpts.mkRonOptionalOf lib.types.str
           {
             __type = "optional";
-            variant = "Anta Gorda - RS, Brazil";
+            value = "Anta Gorda - RS, Brazil";
           }
           ''
             The name of the location.
@@ -60,7 +60,7 @@ lib.cosmic.applications.mkCosmicApplication {
         defaultNullOpts.mkRonOptionalOf lib.types.str
           {
             __type = "optional";
-            variant = "-412.005691";
+            value = "-412.005691";
           }
           ''
             The longitude of the location.
@@ -122,17 +122,17 @@ lib.cosmic.applications.mkCosmicApplication {
 
     latitude = {
       __type = "optional";
-      variant = "-28.971476";
+      value = "-28.971476";
     };
 
     location = {
       __type = "optional";
-      variant = "Anta Gorda - RS, Brazil";
+      value = "Anta Gorda - RS, Brazil";
     };
 
     longitude = {
       __type = "optional";
-      variant = "-412.005691";
+      value = "-412.005691";
     };
 
     pressure_units = {
