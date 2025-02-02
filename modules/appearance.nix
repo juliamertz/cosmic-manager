@@ -3,8 +3,8 @@
   imports = [
     # TODO: Remove after COSMIC stable release.
     (lib.mkRenamedOptionModule
-      [ "wayland" "desktopManager" "cosmic" "appearance" "default" ]
-      [ "wayland" "desktopManager" "cosmic" "appearance" "mode" ]
+      [ "wayland" "desktopManager" "cosmic" "appearance" "theme" "default" ]
+      [ "wayland" "desktopManager" "cosmic" "appearance" "theme" "mode" ]
     )
   ];
 
