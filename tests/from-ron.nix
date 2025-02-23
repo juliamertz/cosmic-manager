@@ -1,6 +1,136 @@
 { lib, runCommandLocal }:
 let
   results = lib.runTests {
+    testFromRonAll = {
+      expr = lib.cosmic.generators.fromRON ''
+        AllTests(
+          bool: true,
+          char: 'a',
+          int: 1,
+          float: 1.1,
+          string: "abc",
+          list: [
+            1,
+            2,
+            3
+          ],
+          map: {
+            "a": 1,
+            2: 2
+          },
+          tuple: (
+            1,
+            2,
+            3
+          ),
+          struct: (
+            a: 1,
+            b: 2
+          ),
+          namedStruct: NamedStruct(
+            a: 1,
+            b: 2
+          ),
+          enum: All,
+          option: Some(Some(123)),
+          tupleEnum: All(123),
+          none: None,
+          raw: foo
+        )
+      '';
+
+      expected = {
+        __type = "namedStruct";
+        name = "AllTests";
+        value = {
+          bool = true;
+
+          char = {
+            __type = "char";
+            value = "a";
+          };
+
+          int = 1;
+          float = 1.1;
+          string = "abc";
+
+          list = [
+            1
+            2
+            3
+          ];
+
+          map = {
+            __type = "map";
+            value = [
+              {
+                key = "a";
+                value = 1;
+              }
+              {
+                key = 2;
+                value = 2;
+              }
+            ];
+          };
+
+          tuple = {
+            __type = "tuple";
+            value = [
+              1
+              2
+              3
+            ];
+          };
+
+          struct = {
+            a = 1;
+            b = 2;
+          };
+
+          namedStruct = {
+            __type = "namedStruct";
+            name = "NamedStruct";
+            value = {
+              a = 1;
+              b = 2;
+            };
+          };
+
+          enum = {
+            __type = "raw";
+            value = "All";
+          };
+
+          option = {
+            __type = "optional";
+            value = {
+              __type = "optional";
+              value = 123;
+            };
+          };
+
+          tupleEnum = {
+            __type = "enum";
+            variant = "All";
+            value = [
+              123
+            ];
+          };
+
+          none = {
+            __type = "optional";
+            value = null;
+          };
+
+          raw = {
+            __type = "raw";
+            value = "foo";
+          };
+        };
+      };
+    };
+
     testFromRonBool = {
       expr = lib.cosmic.generators.fromRON "true";
       expected = true;
