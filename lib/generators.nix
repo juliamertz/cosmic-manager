@@ -1,5 +1,197 @@
 { lib, ... }:
 {
+  fromRON =
+    let
+      fromRON' =
+        str:
+        let
+          trimmed = lib.trim str;
+
+          firstChar = builtins.substring 0 1 trimmed;
+          lastChar = builtins.substring (builtins.stringLength trimmed - 1) 1 trimmed;
+
+          splitItems =
+            str:
+            let
+              content = lib.pipe str [
+                lib.trim
+                (builtins.substring 1 (builtins.stringLength str - 2))
+                lib.trim
+              ];
+
+              split =
+                acc: current: depth: rest:
+                if rest == "" then
+                  if current != "" then acc ++ [ (lib.trim current) ] else acc
+                else
+                  let
+                    char = builtins.substring 0 1 rest;
+                    remaining = builtins.substring 1 (-1) rest;
+                  in
+                  if char == "(" || char == "[" || char == "{" then
+                    split acc (current + char) (depth + 1) remaining
+                  else if char == ")" || char == "]" || char == "}" then
+                    split acc (current + char) (depth - 1) remaining
+                  else if char == "," && depth == 0 then
+                    split (acc ++ [ (lib.trim current) ]) "" depth remaining
+                  else
+                    split acc (current + char) depth remaining;
+            in
+            split [ ] "" 0 content;
+
+          findFirstColon =
+            str:
+            let
+              helper =
+                pos: depth:
+                if pos >= builtins.stringLength str then
+                  null
+                else
+                  let
+                    char = builtins.substring pos 1 str;
+                  in
+                  if char == "(" || char == "[" || char == "{" then
+                    helper (pos + 1) (depth + 1)
+                  else if char == ")" || char == "]" || char == "}" then
+                    helper (pos + 1) (depth - 1)
+                  else if char == ":" && depth == 0 then
+                    pos
+                  else
+                    helper (pos + 1) depth;
+            in
+            helper 0 0;
+
+          isStruct =
+            str:
+            let
+              content = lib.pipe str [
+                lib.trim
+                (builtins.substring 1 (builtins.stringLength str - 2))
+                lib.trim
+              ];
+              colonPos = findFirstColon content;
+
+              beforeColon = builtins.substring 0 colonPos content;
+              depth = lib.foldl (
+                acc: char:
+                if char == "(" || char == "[" || char == "{" then
+                  acc + 1
+                else if char == ")" || char == "]" || char == "}" then
+                  acc - 1
+                else
+                  acc
+              ) 0 (lib.stringToCharacters beforeColon);
+            in
+            colonPos != null && depth == 0;
+        in
+        if firstChar == "[" && lastChar == "]" then
+          map fromRON' (splitItems trimmed)
+        else if firstChar == "{" && lastChar == "}" then
+          {
+            __type = "map";
+            value = map (
+              item:
+              let
+                colonPos = findFirstColon item;
+                key = lib.trim (builtins.substring 0 colonPos item);
+                value = lib.trim (builtins.substring (colonPos + 1) (-1) item);
+              in
+              {
+                key = fromRON' key;
+                value = fromRON' value;
+              }
+            ) (splitItems trimmed);
+          }
+        else if firstChar == "(" && lastChar == ")" then
+          if isStruct trimmed then
+            builtins.listToAttrs (
+              map (
+                item:
+                let
+                  colonPos = findFirstColon item;
+                  name = lib.trim (builtins.substring 0 colonPos item);
+                  value = lib.trim (builtins.substring (colonPos + 1) (-1) item);
+                in
+                {
+                  inherit name;
+                  value = fromRON' value;
+                }
+              ) (splitItems trimmed)
+            )
+          else
+            {
+              __type = "tuple";
+              value = map fromRON' (splitItems trimmed);
+            }
+        else if builtins.match "[A-Za-z_][A-Za-z0-9_]*\\(.*\\)" trimmed != null then
+          let
+            matches = builtins.match "([A-Za-z_][A-Za-z0-9_]*)(\\(.*\\))" trimmed;
+            name = lib.trim (builtins.head matches);
+            value = lib.trim (lib.last matches);
+          in
+          if isStruct value then
+            {
+              __type = "namedStruct";
+              inherit name;
+              value = fromRON' value;
+            }
+          else
+            {
+              __type = "enum";
+              variant = name;
+              value = map fromRON' (splitItems value);
+            }
+        else if trimmed == "true" then
+          true
+        else if trimmed == "false" then
+          false
+        else if trimmed == "None" then
+          {
+            __type = "optional";
+            value = null;
+          }
+        else if builtins.match "Some\\(.*\\)" trimmed != null then
+          let
+            value = builtins.head (builtins.match "Some\\((.*)\\)" trimmed);
+          in
+          {
+            __type = "optional";
+            value = fromRON' value;
+          }
+        else if builtins.match "[0-9]+[.][0-9]+" trimmed != null then
+          let
+            decimals = lib.pipe trimmed [
+              (lib.splitString ".")
+              lib.last
+              builtins.stringLength
+            ];
+          in
+          if decimals > 5 then
+            {
+              __type = "raw";
+              value = trimmed;
+            }
+          else
+            builtins.fromJSON trimmed
+        else if builtins.match "-?[0-9]+" trimmed != null then
+          lib.toInt trimmed
+        else if builtins.match "'.'" trimmed != null then
+          {
+            __type = "char";
+            value = builtins.substring 1 1 trimmed;
+          }
+        else if builtins.match ''".*"'' trimmed != null then
+          builtins.fromJSON trimmed
+        else
+          {
+            __type = "raw";
+            value = trimmed;
+          };
+    in
+    lib.warn ''
+      lib.cosmic.generators.fromRON: this function is experimental, from my testing it works well, but it may not work in all cases. Please report any issues you find.
+    '' fromRON';
+
   toRON =
     let
       toRON' =

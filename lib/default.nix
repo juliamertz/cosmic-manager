@@ -7,7 +7,7 @@ lib.makeExtensible (self: {
   options = import ./options.nix { inherit lib; };
   utils = import ./utils.nix { inherit lib; };
 
-  inherit (self.generators) toRON;
+  inherit (self.generators) fromRON toRON;
 
   inherit (self.modules) applyExtraConfig;
 
