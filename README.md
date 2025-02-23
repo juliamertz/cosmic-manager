@@ -1,6 +1,6 @@
 # cosmic-manager
 
-Manage COSMIC desktop declaratively using `[home-manager](https://github.com/nix-community/home-manager)`.
+Manage COSMIC desktop declaratively using [`home-manager`](https://github.com/nix-community/home-manager).
 
 ## What is cosmic-manager?
 
