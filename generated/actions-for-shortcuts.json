@@ -138,6 +138,12 @@
     {
       "name": "Workspace",
       "type": "u8"
+    },
+    {
+      "name": "ZoomIn"
+    },
+    {
+      "name": "ZoomOut"
     }
   ],
   "Dependencies": {
@@ -187,6 +193,9 @@
       },
       {
         "name": "LockScreen"
+      },
+      {
+        "name": "LogOut"
       },
       {
         "name": "Mute"
