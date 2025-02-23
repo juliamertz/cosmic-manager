@@ -158,7 +158,7 @@
             __type = "optional";
             value = fromRON' value;
           }
-        else if builtins.match "[0-9]+[.][0-9]+" trimmed != null then
+        else if builtins.match "-?[0-9]+[.][0-9]+" trimmed != null then
           let
             decimals = lib.pipe trimmed [
               (lib.splitString ".")
