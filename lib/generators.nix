@@ -102,6 +102,23 @@
               }
             ) (splitItems trimmed);
           }
+        else if trimmed == "None" then
+          {
+            __type = "optional";
+            value = null;
+          }
+        else if builtins.match "Some\\(.*\\)" trimmed != null then
+          let
+            value = builtins.head (builtins.match "Some\\((.*)\\)" trimmed);
+          in
+          {
+            __type = "optional";
+            value = fromRON' value;
+          }
+        else if trimmed == "true" then
+          true
+        else if trimmed == "false" then
+          false
         else if firstChar == "(" && lastChar == ")" then
           if isStruct trimmed then
             builtins.listToAttrs (
@@ -141,23 +158,6 @@
               variant = name;
               value = map fromRON' (splitItems value);
             }
-        else if trimmed == "true" then
-          true
-        else if trimmed == "false" then
-          false
-        else if trimmed == "None" then
-          {
-            __type = "optional";
-            value = null;
-          }
-        else if builtins.match "Some\\(.*\\)" trimmed != null then
-          let
-            value = builtins.head (builtins.match "Some\\((.*)\\)" trimmed);
-          in
-          {
-            __type = "optional";
-            value = fromRON' value;
-          }
         else if builtins.match "-?[0-9]+[.][0-9]+" trimmed != null then
           let
             decimals = lib.pipe trimmed [
