@@ -5,7 +5,8 @@
 }:
 rustPlatform.buildRustPackage {
   pname = "cosmic-manager";
-  version = "unstable-17-01-2025";
+  version = "0-unstable-17-01-2025";
+
   src = lib.fileset.toSource {
     root = ./.;
     fileset = lib.fileset.unions [
