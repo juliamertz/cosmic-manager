@@ -1,17 +1,48 @@
 { config, lib, ... }:
+let
+  inherit (builtins)
+    all
+    elem
+    filter
+    getAttr
+    groupBy
+    hasAttr
+    mapAttrs
+    stringLength
+    ;
+
+  inherit (lib)
+    importJSON
+    init
+    last
+    mapAttrsToList
+    mkIf
+    mkOption
+    pipe
+    splitString
+    toLower
+    types
+    unique
+    ;
+
+  inherit (lib.cosmic)
+    cleanNullsExceptOptional
+    defaultNullOpts
+    mkRonExpression
+    rustToNixType
+    ;
+in
 {
   options.wayland.desktopManager.cosmic.shortcuts =
     let
-      inherit (lib.cosmic) defaultNullOpts;
-
       shortcutSubmodule =
         let
-          generatedActions = lib.importJSON ../generated/actions-for-shortcuts.json;
+          generatedActions = importJSON ../generated/actions-for-shortcuts.json;
         in
-        lib.types.submodule {
+        types.submodule {
           options = {
             description =
-              defaultNullOpts.mkRonOptionalOf lib.types.str
+              defaultNullOpts.mkRonOptionalOf types.str
                 {
                   __type = "optional";
                   value = "Open Terminal";
@@ -21,40 +52,52 @@
                   Used by COSMIC Settings to display the name of a custom shortcut.
                   This field is optional, and should only be used when defining custom shortcuts.
                 '';
-            key = lib.mkOption {
-              type = lib.types.str;
+            key = mkOption {
+              type = types.str;
               example = "Super+Q";
               description = ''
                 The key combination that triggers the action.
                 For example, "Super+Q" would trigger the action when the Super and Q keys are pressed together.
               '';
             };
-            action = lib.mkOption {
+            action = mkOption {
               type =
-                with lib.types;
+                with types;
                 maybeRonRaw (
                   oneOf (
                     [
                       (ronEnum (
-                        lib.pipe generatedActions [
-                          (builtins.getAttr "Actions")
-                          (builtins.filter (action: !(builtins.hasAttr "type" action)))
+                        pipe generatedActions [
+                          (getAttr "Actions")
+                          (filter (action: !(hasAttr "type" action)))
                           (map (action: action.name))
+                          # Remove deprecated actions from the list
+                          # TODO: Remove it when it gets removed from actions
+                          (filter (
+                            action:
+                            !(elem action [
+                              "MigrateWorkspaceToNextOutput"
+                              "MigrateWorkspaceToPreviousOutput"
+                              "MoveToNextOutput"
+                              "MoveToPreviousOutput"
+                              "NextOutput"
+                              "PreviousOutput"
+                              "SendToNextOutput"
+                              "SendToPreviousOutput"
+                            ])
+                          ))
                         ]
                       ))
                     ]
                     ++
-                      lib.mapAttrsToList
+                      mapAttrsToList
                         (
                           type: names:
                           let
                             actionDependencies = generatedActions.Dependencies;
 
                             elemType =
-                              let
-                                inherit (lib.cosmic) rustToNixType;
-                              in
-                              if builtins.hasAttr type actionDependencies then
+                              if hasAttr type actionDependencies then
                                 ronEnum (map (action: action.name) actionDependencies.${type})
                               else
                                 rustToNixType type;
@@ -62,24 +105,20 @@
                           ronTupleEnumOf elemType names 1
                         )
                         (
-                          lib.pipe generatedActions [
-                            (builtins.getAttr "Actions")
-                            (builtins.filter (action: builtins.hasAttr "type" action))
-                            (builtins.groupBy (action: action.type))
-                            (builtins.mapAttrs (_: actions: map (action: action.name) actions))
+                          pipe generatedActions [
+                            (getAttr "Actions")
+                            (filter (action: hasAttr "type" action))
+                            (groupBy (action: action.type))
+                            (mapAttrs (_: actions: map (action: action.name) actions))
                           ]
                         )
                   )
                 );
-              example =
-                let
-                  inherit (lib.cosmic) mkRonExpression;
-                in
-                mkRonExpression 0 {
-                  __type = "enum";
-                  variant = "Spawn";
-                  value = [ "firefox" ];
-                } null;
+              example = mkRonExpression 0 {
+                __type = "enum";
+                variant = "Spawn";
+                value = [ "firefox" ];
+              } null;
               description = ''
                 The action triggered by the shortcut.
                 Actions can include running a command, moving windows, system actions, and more.
@@ -88,7 +127,7 @@
           };
         };
     in
-    defaultNullOpts.mkNullable (lib.types.listOf shortcutSubmodule)
+    defaultNullOpts.mkNullable (types.listOf shortcutSubmodule)
       [
         {
           description = {
@@ -162,49 +201,40 @@
             "Super"
           ];
 
-          isModifier = part: builtins.elem part validModifiers;
+          isModifier = part: elem part validModifiers;
 
-          parts = lib.pipe key [
-            (lib.splitString "+")
-            (builtins.filter (x: x != ""))
+          parts = pipe key [
+            (splitString "+")
+            (filter (x: x != ""))
           ];
-
-          init = lib.init parts;
-          last = lib.last parts;
         in
         {
           key =
-            if builtins.all isModifier parts then
+            if all isModifier parts then
               null
-            else if builtins.stringLength last == 1 then
-              lib.toLower last
+            else if stringLength last == 1 then
+              toLower (last parts)
             else
               last;
 
           modifiers = map (modifier: {
             __type = "enum";
             variant = modifier;
-          }) (lib.unique (if builtins.all isModifier parts then parts else init));
+          }) (unique (if all isModifier parts then parts else init parts));
         };
     in
-    lib.mkIf (cfg.shortcuts != null) {
+    mkIf (cfg.shortcuts != null) {
       wayland.desktopManager.cosmic.configFile."com.system76.CosmicSettings.Shortcuts" = {
         entries.custom = {
           __type = "map";
-          value = lib.pipe cfg.shortcuts [
-            (map (shortcut: {
-              key =
-                let
-                  inherit (lib.cosmic) cleanNullsExceptOptional;
-                in
-                lib.pipe shortcut.key [
-                  parseShortcuts
-                  (parsed: parsed // { inherit (shortcut) description; })
-                  cleanNullsExceptOptional
-                ];
-              value = shortcut.action;
-            }))
-          ];
+          value = map (shortcut: {
+            key = pipe shortcut.key [
+              parseShortcuts
+              (parsed: parsed // { inherit (shortcut) description; })
+              cleanNullsExceptOptional
+            ];
+            value = shortcut.action;
+          }) cfg.shortcuts;
         };
         version = 1;
       };
