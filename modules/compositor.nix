@@ -1,24 +1,24 @@
 { config, lib, ... }:
+let
+  inherit (lib) mkIf mkOption types;
+  inherit (lib.cosmic) defaultNullOpts mkRonExpression;
+in
 {
   options.wayland.desktopManager.cosmic.compositor =
     let
-      inherit (lib.cosmic) defaultNullOpts;
-
       compositorSubmodule =
         let
-          inherit (lib.cosmic) mkRonExpression;
-
-          inputSubmodule = lib.types.submodule {
-            freeformType = with lib.types; attrsOf anything;
+          inputSubmodule = types.submodule {
+            freeformType = with types; attrsOf anything;
             options = {
               acceleration =
                 let
-                  accelerationSubmodule = lib.types.submodule {
-                    freeformType = with lib.types; attrsOf anything;
+                  accelerationSubmodule = types.submodule {
+                    freeformType = with types; attrsOf anything;
                     options = {
-                      profile = lib.mkOption {
+                      profile = mkOption {
                         type =
-                          with lib.types;
+                          with types;
                           maybeRonRaw (
                             ronOptionalOf (
                               maybeRonRaw (ronEnum [
@@ -36,8 +36,8 @@
                         } null;
                       };
 
-                      speed = lib.mkOption {
-                        type = with lib.types; maybeRonRaw float;
+                      speed = mkOption {
+                        type = with types; maybeRonRaw float;
                         example = 0.0;
                         description = ''
                           The speed of the input device.
@@ -46,7 +46,7 @@
                     };
                   };
                 in
-                defaultNullOpts.mkNullable (lib.types.ronOptionalOf accelerationSubmodule)
+                defaultNullOpts.mkNullable (types.ronOptionalOf accelerationSubmodule)
                   {
                     __type = "optional";
                     value = {
@@ -65,7 +65,7 @@
                   '';
 
               calibration =
-                defaultNullOpts.mkRonOptionalOf (with lib.types; ronTupleOf float 6)
+                defaultNullOpts.mkRonOptionalOf (with types; ronTupleOf float 6)
                   {
                     __type = "optional";
                     value = {
@@ -86,7 +86,7 @@
 
               click_method =
                 defaultNullOpts.mkRonOptionalOf
-                  (lib.types.ronEnum [
+                  (types.ronEnum [
                     "ButtonAreas"
                     "Clickfinger"
                   ])
@@ -102,7 +102,7 @@
                   '';
 
               disable_while_typing =
-                defaultNullOpts.mkRonOptionalOf lib.types.bool
+                defaultNullOpts.mkRonOptionalOf types.bool
                   {
                     __type = "optional";
                     value = true;
@@ -112,7 +112,7 @@
                   '';
 
               left_handed =
-                defaultNullOpts.mkRonOptionalOf lib.types.bool
+                defaultNullOpts.mkRonOptionalOf types.bool
                   {
                     __type = "optional";
                     value = false;
@@ -122,7 +122,7 @@
                   '';
 
               map_to_output =
-                defaultNullOpts.mkRonOptionalOf lib.types.str
+                defaultNullOpts.mkRonOptionalOf types.str
                   {
                     __type = "optional";
                     value = "HDMI-A-1";
@@ -132,7 +132,7 @@
                   '';
 
               middle_button_emulation =
-                defaultNullOpts.mkRonOptionalOf lib.types.bool
+                defaultNullOpts.mkRonOptionalOf types.bool
                   {
                     __type = "optional";
                     value = false;
@@ -142,7 +142,7 @@
                   '';
 
               rotation_angle =
-                defaultNullOpts.mkRonOptionalOf lib.types.ints.u32
+                defaultNullOpts.mkRonOptionalOf types.ints.u32
                   {
                     __type = "optional";
                     value = 0;
@@ -153,12 +153,12 @@
 
               scroll_config =
                 let
-                  scrollConfigSubmodule = lib.types.submodule {
-                    freeformType = with lib.types; attrsOf anything;
+                  scrollConfigSubmodule = types.submodule {
+                    freeformType = with types; attrsOf anything;
                     options = {
-                      method = lib.mkOption {
+                      method = mkOption {
                         type =
-                          with lib.types;
+                          with types;
                           maybeRonRaw (
                             ronOptionalOf (
                               maybeRonRaw (ronEnum [
@@ -181,24 +181,24 @@
                         '';
                       };
 
-                      natural_scroll = lib.mkOption {
-                        type = with lib.types; maybeRonRaw (ronOptionalOf (maybeRonRaw bool));
+                      natural_scroll = mkOption {
+                        type = with types; maybeRonRaw (ronOptionalOf (maybeRonRaw bool));
                         example = true;
                         description = ''
                           Whether to enable natural scrolling.
                         '';
                       };
 
-                      scroll_button = lib.mkOption {
-                        type = with lib.types; maybeRonRaw (ronOptionalOf (maybeRonRaw ints.u32));
+                      scroll_button = mkOption {
+                        type = with types; maybeRonRaw (ronOptionalOf (maybeRonRaw ints.u32));
                         example = 2;
                         description = ''
                           The scroll button of the input device.
                         '';
                       };
 
-                      scroll_factor = lib.mkOption {
-                        type = with lib.types; maybeRonRaw (ronOptionalOf (maybeRonRaw float));
+                      scroll_factor = mkOption {
+                        type = with types; maybeRonRaw (ronOptionalOf (maybeRonRaw float));
                         example = 1.0;
                         description = ''
                           The scroll factor of the input device.
@@ -207,7 +207,7 @@
                     };
                   };
                 in
-                defaultNullOpts.mkNullable (lib.types.ronOptionalOf scrollConfigSubmodule)
+                defaultNullOpts.mkNullable (types.ronOptionalOf scrollConfigSubmodule)
                   {
                     method = {
                       __type = "optional";
@@ -249,12 +249,12 @@
 
               tap_config =
                 let
-                  tapConfigSubmodule = lib.types.submodule {
-                    freeformType = with lib.types; attrsOf anything;
+                  tapConfigSubmodule = types.submodule {
+                    freeformType = with types; attrsOf anything;
                     options = {
-                      button_map = lib.mkOption {
+                      button_map = mkOption {
                         type =
-                          with lib.types;
+                          with types;
                           maybeRonRaw (
                             ronOptionalOf (
                               maybeRonRaw (ronEnum [
@@ -272,24 +272,24 @@
                         } null;
                       };
 
-                      drag = lib.mkOption {
-                        type = with lib.types; maybeRonRaw bool;
+                      drag = mkOption {
+                        type = with types; maybeRonRaw bool;
                         example = true;
                         description = ''
                           Whether to enable drag.
                         '';
                       };
 
-                      drag_lock = lib.mkOption {
-                        type = with lib.types; maybeRonRaw bool;
+                      drag_lock = mkOption {
+                        type = with types; maybeRonRaw bool;
                         example = true;
                         description = ''
                           Whether to enable drag lock.
                         '';
                       };
 
-                      enabled = lib.mkOption {
-                        type = with lib.types; maybeRonRaw bool;
+                      enabled = mkOption {
+                        type = with types; maybeRonRaw bool;
                         example = true;
                         description = ''
                           Whether to enable tap.
@@ -298,7 +298,7 @@
                     };
                   };
                 in
-                defaultNullOpts.mkNullable (lib.types.ronOptionalOf tapConfigSubmodule)
+                defaultNullOpts.mkNullable (types.ronOptionalOf tapConfigSubmodule)
                   {
                     button_map = {
                       __type = "optional";
@@ -326,9 +326,62 @@
             };
           };
         in
-        lib.types.submodule {
-          freeformType = with lib.types; attrsOf anything;
+        types.submodule {
+          freeformType = with types; attrsOf anything;
           options = {
+            accessibility_zoom =
+              let
+                accessibilityZoomSubmodule = types.submodule {
+                  freeformType = with types; attrsOf anything;
+                  options = {
+                    increment = mkOption {
+                      type = with types; maybeRonRaw ints.u32;
+                      example = 50;
+                      description = ''
+                        The zoom increment.
+                      '';
+                    };
+
+                    start_on_login = mkOption {
+                      type = with types; maybeRonRaw bool;
+                      example = false;
+                      description = ''
+                        Whether to start the accessibility zoom on login.
+                      '';
+                    };
+
+                    view_moves = mkOption {
+                      type =
+                        with types;
+                        maybeRonRaw (ronEnum [
+                          "Centered"
+                          "Continuously"
+                          "OnEdge"
+                        ]);
+                      example = mkRonExpression 0 {
+                        __type = "enum";
+                        variant = "Continuously";
+                      } null;
+                      description = ''
+                        The view moves of the accessibility zoom.
+                      '';
+                    };
+                  };
+                };
+              in
+              defaultNullOpts.mkNullable accessibilityZoomSubmodule
+                {
+                  increment = 50;
+                  start_on_login = false;
+                  view_moves = {
+                    __type = "enum";
+                    variant = "Continuously";
+                  };
+                }
+                ''
+                  The accessibility zoom configuration.
+                '';
+
             active_hint = defaultNullOpts.mkBool true ''
               Whether to show the active window hint.
             '';
@@ -356,6 +409,10 @@
 
             descale_xwayland = defaultNullOpts.mkBool false ''
               Whether to let XWayland windows be scaled by themselves.
+            '';
+
+            edge_snap_threshold = defaultNullOpts.mkU32 0 ''
+              The edge snap threshold.
             '';
 
             focus_follows_cursor = defaultNullOpts.mkBool false ''
@@ -442,14 +499,47 @@
                   The input configuration for touchpad.
                 '';
 
+            keyboard_config =
+              let
+                keyboardConfigSubmodule = types.submodule {
+                  freeformType = with types; attrsOf anything;
+                  options.numlock_state = mkOption {
+                    type =
+                      with types;
+                      maybeRonRaw (ronEnum [
+                        "BootOff"
+                        "BootOn"
+                        "LastBoot"
+                      ]);
+                    example = mkRonExpression 0 {
+                      __type = "enum";
+                      variant = "BootOff";
+                    } null;
+                    description = ''
+                      The numlock state of the keyboard.
+                    '';
+                  };
+                };
+              in
+              defaultNullOpts.mkNullable keyboardConfigSubmodule
+                {
+                  numlock_state = {
+                    __type = "enum";
+                    variant = "BootOff";
+                  };
+                }
+                ''
+                  The keyboard configuration.
+                '';
+
             workspaces =
               let
-                workspacesSubmodule = lib.types.submodule {
-                  freeformType = with lib.types; attrsOf anything;
+                workspacesSubmodule = types.submodule {
+                  freeformType = with types; attrsOf anything;
                   options = {
-                    workspace_layout = lib.mkOption {
+                    workspace_layout = mkOption {
                       type =
-                        with lib.types;
+                        with types;
                         maybeRonRaw (ronEnum [
                           "Horizontal"
                           "Vertical"
@@ -466,9 +556,9 @@
                       '';
                     };
 
-                    workspace_mode = lib.mkOption {
+                    workspace_mode = mkOption {
                       type =
-                        with lib.types;
+                        with types;
                         maybeRonRaw (ronEnum [
                           "Global"
                           "OutputBound"
@@ -504,58 +594,58 @@
 
             xkb_config =
               let
-                xkbConfigSubmodule = lib.types.submodule {
-                  freeformType = with lib.types; attrsOf anything;
+                xkbConfigSubmodule = types.submodule {
+                  freeformType = with types; attrsOf anything;
                   options = {
-                    layout = lib.mkOption {
-                      type = with lib.types; maybeRonRaw str;
+                    layout = mkOption {
+                      type = with types; maybeRonRaw str;
                       example = "br";
                       description = ''
                         The keyboard layout.
                       '';
                     };
 
-                    model = lib.mkOption {
-                      type = with lib.types; maybeRonRaw str;
+                    model = mkOption {
+                      type = with types; maybeRonRaw str;
                       example = "pc104";
                       description = ''
                         The keyboard model.
                       '';
                     };
 
-                    options = lib.mkOption {
-                      type = with lib.types; maybeRonRaw (ronOptionalOf (maybeRonRaw str));
+                    options = mkOption {
+                      type = with types; maybeRonRaw (ronOptionalOf (maybeRonRaw str));
                       example = "terminate:ctrl_alt_bksp";
                       description = ''
                         The keyboard options.
                       '';
                     };
 
-                    repeat_delay = lib.mkOption {
-                      type = with lib.types; maybeRonRaw ints.u32;
+                    repeat_delay = mkOption {
+                      type = with types; maybeRonRaw ints.u32;
                       example = 600;
                       description = ''
                         The keyboard repeat delay.
                       '';
                     };
 
-                    repeat_rate = lib.mkOption {
-                      type = with lib.types; maybeRonRaw ints.u32;
+                    repeat_rate = mkOption {
+                      type = with types; maybeRonRaw ints.u32;
                       example = 25;
                       description = ''
                         The keyboard repeat rate.
                       '';
                     };
 
-                    rules = lib.mkOption {
-                      type = with lib.types; maybeRonRaw str;
+                    rules = mkOption {
+                      type = with types; maybeRonRaw str;
                       description = ''
                         The keyboard rules.
                       '';
                     };
 
-                    variant = lib.mkOption {
-                      type = with lib.types; maybeRonRaw str;
+                    variant = mkOption {
+                      type = with types; maybeRonRaw str;
                       example = "dvorak";
                       description = ''
                         The keyboard variant.
@@ -587,24 +677,30 @@
       {
         active_hint = true;
         autotile = false;
+
         autotile_behavior = {
           __type = "enum";
           variant = "PerWorkspace";
         };
+
         cursor_follows_focus = false;
         descale_xwayland = false;
+        edge_snap_threshold = 0;
         focus_follows_cursor = false;
         focus_follows_cursor_delay = 250;
+
         workspaces = {
           workspace_layout = {
             __type = "enum";
             variant = "Vertical";
           };
+
           workspace_mode = {
             __type = "enum";
             variant = "OutputBound";
           };
         };
+
         xkb_config = {
           layout = "br";
           model = "pc104";
@@ -626,7 +722,7 @@
     let
       cfg = config.wayland.desktopManager.cosmic;
     in
-    lib.mkIf (cfg.compositor != null) {
+    mkIf (cfg.compositor != null) {
       entries = cfg.compositor;
       version = 1;
     };
