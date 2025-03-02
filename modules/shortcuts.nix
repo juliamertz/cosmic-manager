@@ -215,7 +215,7 @@ in
             else if stringLength last == 1 then
               toLower (last parts)
             else
-              last;
+              last parts;
 
           modifiers = map (modifier: {
             __type = "enum";
