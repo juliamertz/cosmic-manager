@@ -212,7 +212,7 @@ in
           key =
             if all isModifier parts then
               null
-            else if stringLength last == 1 then
+            else if stringLength (last parts) == 1 then
               toLower (last parts)
             else
               last parts;
