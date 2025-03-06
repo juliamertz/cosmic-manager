@@ -20,7 +20,6 @@ lib.makeExtensible (self: {
 
   inherit (self.utils)
     cleanNullsExceptOptional
-    capitalizeWord
     isRonType
     literalRon
     mkRon
