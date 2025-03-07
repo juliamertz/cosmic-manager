@@ -11,6 +11,7 @@ let
     length
     listToAttrs
     match
+    readFile
     substring
     stringLength
     typeOf
@@ -31,8 +32,7 @@ let
     warn
     ;
   inherit (lib.strings) escapeNixString floatToString replicate;
-in
-{
+
   fromRON =
     let
       fromRON' =
@@ -224,6 +224,16 @@ in
     warn ''
       lib.cosmic.ron.fromRON: this function is experimental, from my testing it works well, but it may not work in all cases. Please report any issues you find.
     '' fromRON';
+in
+{
+  inherit fromRON;
+
+  importRON =
+    path:
+    pipe path [
+      readFile
+      fromRON
+    ];
 
   isRONType =
     v:
