@@ -15,6 +15,7 @@ makeExtensible (self: {
   inherit (self.modules) applyExtraConfig;
   inherit (self.ron)
     fromRON
+    importRON
     isRONType
     mkRON
     toRON
