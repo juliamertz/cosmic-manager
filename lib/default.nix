@@ -37,16 +37,16 @@ makeExtensible (self: {
   # TODO: Remove after COSMIC stable release
   generators =
     genAttrs
+      [
+        "fromRON"
+        "toRON"
+      ]
       (
         name:
         warn
           "cosmic-manager: `cosmicLib.cosmic.generators.${name}` has been renamed to `cosmicLib.cosmic.ron.${name}`."
           self.ron.${name}
-      )
-      [
-        "fromRON"
-        "toRON"
-      ];
+      );
 
   mkRon = warn "cosmic-manager: `cosmicLib.cosmic.mkRon` has been renamed to `cosmicLib.cosmic.mkRON`" self.ron.mkRON;
 })

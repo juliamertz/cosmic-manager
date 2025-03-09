@@ -405,9 +405,7 @@ in
               else if value.__type == "map" then
                 assert assertMsg (value ? value) "lib.cosmic.ron.toRON: map type must have a value.";
                 assert assertMsg (isList value.value) "lib.cosmic.ron.toRON: map type value must be a list.";
-                assert assertMsg (all (
-                  element: isAttrs element
-                ) value.value) "lib.cosmic.ron.toRON: map type value must be a list of attribute sets.";
+                assert assertMsg (all isAttrs value.value) "lib.cosmic.ron.toRON: map type value must be a list of attribute sets.";
 
                 let
                   count = length value.value;

@@ -150,7 +150,7 @@ in
           name = "ronEnum";
           show = v: ''"${v}"'';
         in
-        assert assertMsg (all (value: isString value) variants) "All variants in the enum must be strings.";
+        assert assertMsg (all isString variants) "All variants in the enum must be strings.";
         mkOptionType {
           check =
             value:
@@ -569,7 +569,7 @@ in
           show = v: ''"${v}"'';
         in
         variants: size:
-        assert assertMsg (all (value: isString value) variants) "All variants in the enum must be strings.";
+        assert assertMsg (all isString variants) "All variants in the enum must be strings.";
         assert assertMsg (size > 0) "The size must be greater than zero.";
         mkOptionType {
           check =
@@ -622,7 +622,7 @@ in
           show = v: ''"${v}"'';
         in
         elemType: variants: size:
-        assert assertMsg (all (value: isString value) variants) "All variants in the enum must be strings.";
+        assert assertMsg (all isString variants) "All variants in the enum must be strings.";
         assert assertMsg (size > 0) "The size must be greater than zero.";
         mkOptionType {
           check =
