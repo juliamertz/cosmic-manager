@@ -6,24 +6,27 @@ in
 {
   options.wayland.desktopManager.cosmic.systemActions =
     defaultNullOpts.mkRonMapOf types.str
-      [
-        {
-          key = {
-            __type = "enum";
-            variant = "Terminal";
-          };
+      {
+        __type = "map";
+        value = [
+          {
+            key = {
+              __type = "enum";
+              variant = "Terminal";
+            };
 
-          value = "ghostty";
-        }
-        {
-          key = {
-            __type = "enum";
-            variant = "Launcher";
-          };
+            value = "ghostty";
+          }
+          {
+            key = {
+              __type = "enum";
+              variant = "Launcher";
+            };
 
-          value = "krunner";
-        }
-      ]
+            value = "krunner";
+          }
+        ];
+      }
       ''
         Overrides for COSMIC Desktop system actions.
       '';
