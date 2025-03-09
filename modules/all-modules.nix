@@ -1,5 +1,9 @@
 { lib, ... }:
 let
+  inherit (builtins) readDir;
+  inherit (lib) foldlAttrs optional;
+  inherit (lib.filesystem) listFilesRecursive;
+
   appletsByName = ./applets/by-name;
   applicationsByName = ./applications/by-name;
   misc = ./misc;
@@ -12,14 +16,15 @@ in
   ./idle.nix
   ./panels.nix
   ./shortcuts.nix
+  ./system-actions.nix
   ./wallpapers.nix
 ]
+++ foldlAttrs (
+  prev: name: type:
+  prev ++ optional (type == "directory") (applicationsByName + "/${name}")
+) [ ] (readDir applicationsByName)
 ++ lib.foldlAttrs (
   prev: name: type:
-  prev ++ lib.optional (type == "directory") (applicationsByName + "/${name}")
-) [ ] (builtins.readDir applicationsByName)
-++ lib.foldlAttrs (
-  prev: name: type:
-  prev ++ lib.optional (type == "directory") (appletsByName + "/${name}")
-) [ ] (builtins.readDir appletsByName)
-++ lib.filesystem.listFilesRecursive misc
+  prev ++ optional (type == "directory") (appletsByName + "/${name}")
+) [ ] (readDir appletsByName)
+++ listFilesRecursive misc
