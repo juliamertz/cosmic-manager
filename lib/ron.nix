@@ -326,6 +326,7 @@ in
         in
         {
           bool = boolToString value;
+
           float =
             let
               trimFloatString =
@@ -336,8 +337,10 @@ in
                 if hasInfix "." string then head (match "([0-9]+[.][0-9]*[1-9]|[0-9]+[.]0)0*" string) else string;
             in
             trimFloatString value;
+
           int = toString value;
           lambda = mkThrow "toRON" "Functions are not supported in RON";
+
           list =
             let
               count = length value;
@@ -351,13 +354,19 @@ in
                   "${indent nextIndent}${toRON' nextIndent element}${optionalString (index != count) ","}"
                 ) value
               },\n${indent startIndent}]";
+
           null = mkThrow "toRON" ''
             Null values are cleaned up by lib.cosmic.utils.cleanNullsExceptOptional.
             If you are seeing this message, please report this, as it should not happen.
 
             If you want to represent a null value in RON, you can use the `optional` type.
           '';
-          path = mkThrow "toRON" "Path is not supported in RON";
+
+          path = pipe value [
+            toString
+            escapeNixString
+          ];
+
           set =
             if value ? __type then
               if value.__type == "raw" then
@@ -483,6 +492,7 @@ in
                     }"
                   ) keys
                 },\n${indent startIndent})";
+
           string = escapeNixString value;
         }
         .${type} or (mkThrow "toRON" "${type} is not supported.");

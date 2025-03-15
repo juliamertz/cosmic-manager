@@ -1,8 +1,10 @@
 { config, lib, ... }:
 let
   inherit (builtins)
+    any
     filter
     head
+    isString
     length
     listToAttrs
     ;
@@ -14,7 +16,12 @@ let
     types
     unique
     ;
-  inherit (lib.cosmic) defaultNullOpts mkAssertions mkRONExpression;
+  inherit (lib.cosmic)
+    defaultNullOpts
+    mkAssertions
+    mkRONExpression
+    mkWarning
+    ;
 in
 {
   options.wayland.desktopManager.cosmic.wallpapers =
@@ -147,7 +154,7 @@ in
               type =
                 with types;
                 maybeRonRaw (
-                  either (ronTupleEnumOf (maybeRonRaw str) [ "Path" ] 1) (
+                  either (ronTupleEnumOf (maybeRonRaw (either str path)) [ "Path" ] 1) (
                     ronTupleEnumOf (either (ronTupleEnumOf gradientSubmodule [ "Gradient" ] 1) (
                       ronTupleEnumOf (maybeRonRaw (ronTupleOf (maybeRonRaw float) 3)) [ "Single" ] 1
                     )) [ "Color" ] 1
@@ -189,6 +196,14 @@ in
               description = ''
                 The source of the wallpaper.
               '';
+              # TODO: Remove support for strings after COSMIC stable release
+              apply =
+                value:
+                if any isString value.value then
+                  mkWarning "wallpapers" "strings as path values is deprecated, please use a path value instead."
+                    value
+                else
+                  value;
             };
         };
       };
