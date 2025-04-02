@@ -145,7 +145,7 @@ fn to_nix_expression(
         // Recursively process the inner value
         let processed_inner = to_nix_expression(None, inner_value, indent, Some("optional"));
         format!(
-            "cosmicLib.cosmic.mkRon \"optional\" {}",
+            "cosmicLib.cosmic.mkRON \"optional\" {}",
             processed_inner.trim()
         )
     };
@@ -155,7 +155,7 @@ fn to_nix_expression(
             format_with_entry(wrap_value(process_some_value(inner.as_str())))
         } else {
             format_with_entry(wrap_value(format!(
-                "cosmicLib.cosmic.mkRon \"optional\" null"
+                "cosmicLib.cosmic.mkRON \"optional\" null"
             )))
         }
     } else if bool_pattern.is_match(input).unwrap_or(false)
@@ -165,18 +165,18 @@ fn to_nix_expression(
         format_with_entry(escaped_input)
     } else if char_pattern.is_match(input).unwrap_or(false) {
         format_with_entry(wrap_value(format!(
-            "cosmicLib.cosmic.mkRon \"char\" \"{}\"",
+            "cosmicLib.cosmic.mkRON \"char\" \"{}\"",
             escaped_input
         )))
     } else if none_pattern.is_match(input).unwrap_or(false) {
         format_with_entry(wrap_value(
-            "cosmicLib.cosmic.mkRon \"optional\" null".to_string(),
+            "cosmicLib.cosmic.mkRON \"optional\" null".to_string(),
         ))
     } else if str_pattern.is_match(input).unwrap_or(false) {
         format_with_entry(format!("\"{}\"", escaped_input))
     } else {
         format_with_entry(wrap_value(format!(
-            "cosmicLib.cosmic.mkRon \"raw\" \"{}\"",
+            "cosmicLib.cosmic.mkRON \"raw\" \"{}\"",
             escaped_input
         )))
     }
