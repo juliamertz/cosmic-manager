@@ -220,8 +220,6 @@ let
             value = trimmed;
           };
     in
-    mkWarning "fromRON"
-      "This function is experimental, from my testing it works well, but it may not work in all cases. Please report any issues you find."
       fromRON';
 in
 {
