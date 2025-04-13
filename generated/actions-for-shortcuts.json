@@ -80,6 +80,10 @@
       "type": "ResizeDirection"
     },
     {
+      "name": "Resize",
+      "type": "Direction"
+    },
+    {
       "name": "SendToLastWorkspace"
     },
     {
